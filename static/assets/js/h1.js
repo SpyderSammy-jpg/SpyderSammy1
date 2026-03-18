@@ -162,6 +162,7 @@ document.addEventListener("DOMContentLoaded", event => {
       },
       retina_detect: true,
     };
+    // Ensure particles.js is loaded in your HTML before this runs
     particlesJS("particles-js", particlesConfig);
   }
 });
@@ -174,7 +175,7 @@ const SplashT = [
   "Interstellar is a high-speed proxy designed to bypass school filters.",
   "All hail SpyderSammy",
   "Check out the settings page",
-  "Don't forget to play admin abuse this week!"
+  "Don't forget to play admin abuse this week!",
   "Contact 208419@jcpsnj.org for updates, requests, errors and new url's",
 ];
 
@@ -186,9 +187,11 @@ function US() {
   SplashE.innerText = SplashT[SplashI];
 }
 
-SplashE.innerText = SplashT[SplashI];
+if (SplashE) {
+  SplashE.innerText = SplashT[SplashI];
+  SplashE.addEventListener("click", US);
+}
 
-SplashE.addEventListener("click", US);
 // Random URL
 function getRandomUrl() {
   const randomUrls = [
