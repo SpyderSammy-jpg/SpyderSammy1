@@ -1,106 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Classroom</title>
-    <link rel="icon" type="image/x-icon" href="https://ssl.gstatic.com">
-    <style>
-        :root { --primary: #ff0000; --secondary: #ffff00; --bg: #000; --text: #fff; }
-        body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
-        
-        /* Falling Spyders Background */
-        #emoji-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .emoji { position: absolute; top: -50px; font-size: 24px; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-
-        /* Homepage UI */
-        .home-content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 1; }
-        h1 { font-size: 80px; color: var(--primary); text-shadow: 0 0 20px var(--primary), 0 0 30px var(--secondary); margin-bottom: 25px; font-weight: 900; letter-spacing: 5px; }
-        
-        /* Omni Search Bar */
-        .search-container { width: 60%; max-width: 600px; position: relative; }
-        input#omni-bar { 
-            width: 100%; padding: 18px 30px; border-radius: 40px; 
-            border: 3px solid var(--primary); background: rgba(0,0,0,0.9); 
-            color: white; font-size: 20px; outline: none;
-            box-shadow: 0 0 15px var(--primary); transition: 0.3s;
-        }
-        input#omni-bar:focus { border-color: var(--secondary); box-shadow: 0 0 25px var(--secondary); }
-        
-        /* Bookmark Section */
-        .add-btn { margin-top: 25px; width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--text); background: none; color: white; font-size: 25px; cursor: pointer; transition: 0.2s; }
-        .add-btn:hover { background: var(--primary); border-color: var(--primary); transform: scale(1.1); }
-        #bookmarks { margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-        .bookmark-tag { padding: 8px 15px; background: #111; border: 1px solid var(--primary); border-radius: 15px; color: white; cursor: pointer; font-size: 14px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
+  <title id="t">Home</title>
+  <link rel="stylesheet" href="/assets/css/global.css?v=6" />
+  <link rel="stylesheet" href="/assets/css/h.css?v=01" />
+  <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6840529569014734"
+    crossorigin="anonymous"></script>
 </head>
-<body>
 
-    <div id="emoji-container"></div>
-
-    <div class="home-content">
-        <h1>SPYDERSAMMY</h1>
-        <div class="search-container">
-            <input type="text" id="omni-bar" placeholder="Type a URL or search phrase..." onkeydown="handleSearch(event)">
-        </div>
-        
-        <div id="bookmarks">
-            <!-- Bookmarks appear here -->
-        </div>
-        <button class="add-btn" onclick="addBookmark()">+</button>
+<body class="center" onload="SplashT">
+  <div class="f-nav"></div>
+  <div id="particles-js">
+    <script rel="preload" src="https://cdn.jsdelivr.net/particles.js/2.0.0/"></script>
+    <div class="main">
+      <h1 class="title">&#73;&#110;&#116;&#101;&#114;&#115;&#116;&#101;&#108;&#108;&#97;&#114;</h1>
+      <p id="splash"></p>
+      <div class="search-container">
+        <form id="fv" method="POST">
+          <input id="input" class="truncate" placeholder="Search or enter a URL" type="text" />
+        </form>
+      </div>
     </div>
+  </div>
+  <script src="assets/js/index-3.js"></script>
+  <script src="/assets/js/h1.js"></script>
+  <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
+  <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
+  <script src="/assets/js/m1.js"></script>
+  <!-- DO NOT REMOVE-->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WKJQ5QHQTJ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || []
+    function gtag() {
+      dataLayer.push(arguments)
+    }
+    gtag("js", new Date())
 
-    <!-- Interstellar core scripts -->
-    <script src="/uv/uv.bundle.js"></script>
-    <script src="/uv/uv.config.js"></script>
-    <script>
-        // Falling Spyders Logic
-        const container = document.getElementById('emoji-container');
-        function createEmoji() {
-            const e = document.createElement('div');
-            e.className = 'emoji'; e.innerText = '🕷️';
-            e.style.left = Math.random() * 100 + 'vw';
-            e.style.animationDuration = Math.random() * 3 + 2 + 's';
-            container.appendChild(e);
-            setTimeout(() => e.remove(), 5000);
-        }
-        setInterval(createEmoji, 350);
-
-        // Omni Search Logic (Interstellar Style)
-        function handleSearch(e) {
-            if (e.key === 'Enter') {
-                const val = e.target.value.trim();
-                let url = '';
-                
-                // Detect space key: If a space exists, it's a search phrase
-                if (val.includes(' ')) {
-                    url = 'https://duckduckgo.com' + encodeURIComponent(val);
-                } else {
-                    // Check if it looks like a URL, otherwise search
-                    url = val.includes('.') ? (val.startsWith('http') ? val : 'https://' + val) : 'https://duckduckgo.com' + encodeURIComponent(val);
-                }
-                
-                // Launch through Interstellar's UV Proxy
-                window.location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
-            }
-        }
-
-        // Bookmark logic
-        function addBookmark() {
-            const name = prompt("Enter a name for your bookmark:");
-            const url = prompt("Enter the URL (e.g., youtube.com):");
-            if(name && url) {
-                const tag = document.createElement('div');
-                tag.className = 'bookmark-tag';
-                tag.innerText = name;
-                tag.onclick = () => {
-                    const finalUrl = url.startsWith('http') ? url : 'https://' + url;
-                    window.location.href = __uv$config.prefix + __uv$config.encodeUrl(finalUrl);
-                };
-                document.getElementById('bookmarks').appendChild(tag);
-            }
-        }
-    </script>
+    gtag("config", "G-WKJQ5QHQTJ")
+  </script>
+  <!-- DO NOT REMOVE-->
 </body>
+
 </html>
