@@ -167,16 +167,21 @@ document.addEventListener("DOMContentLoaded", event => {
 });
 // Splash texts
 const SplashT = [
-  "Over 8 Million Users since 2023",
-  "Fastest growing proxy server",
-  "Made by xBubbo",
-  "Check out discord.gg/interstellar :)",
-  "Thanks for using the site",
-  "Follow us on Tiktok (@useinterstellar)",
-  "Subscribe to us on YouTube (@unblocking)",
-  "Subscribe to my Youtube (@xbubbo)",
+  "Thanks for using SpyderSammyUI Proxy",
+  "This is dedicated for Homeroom 222 of the Frank R. Conwell Middle School 4",
+  "Made by Sharvesh Vijayanand (SpyderSammy)",
+  "Check out my new Interstellar Proxy! :)",
+  "These notifications will have further updates such as new url's, proxy websites, and more!",
+  "Interstellar is a high-speed proxy designed to bypass school filters.",
+  "All hail SpyderSammy",
+  "Tung Tung Tung Sahur",
   "Check out the settings page",
-  "Check out our Patreon (https://www.patreon.com/gointerstellar)",
+  "Don't forget to play admin abuse this week!"
+  "Have a nice day"
+  "Contact 208419@jcpsnj.org for updates, requests, errors and new url's"
+  "The games are op"
+  "The power of code"
+  "Sharvesh Vijayanand (AKA SpyderSammy),
 ];
 
 let SplashI = Math.floor(Math.random() * SplashT.length);
