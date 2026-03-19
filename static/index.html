@@ -14,40 +14,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
   
   <style>
-    /* 1. Make background completely black */
-    body, html, #particles-js {
-      background-color: #000 !important;
-      background-image: none !important;
-    }
-
-    /* 2. Style the SpyderSammy Title */
+    /* 1. The Red/Yellow Font Styling */
     .title {
       color: #ff0000 !important; /* Red text */
-      -webkit-text-stroke: 2px #ffff00; /* Yellow border */
-      font-size: 5rem;
+      -webkit-text-stroke: 1.5px #ffff00; /* Yellow border */
       font-weight: 900;
-      text-transform: uppercase;
-      margin-top: -50px; /* Moves it higher up */
-      margin-bottom: 10px;
-      background: none !important; /* Removes any background image */
+      background: none !important; /* Removes original gradient/image */
       -webkit-background-clip: initial !important;
       -webkit-text-fill-color: initial !important;
     }
 
-    /* 3. Remove the top-left Interstellar branding logo */
-    .f-nav {
+    /* 2. Remove the top-left Interstellar branding logo */
+    .f-nav, .f-nav * {
       background-image: none !important;
-    }
-    .f-nav img, .f-nav .logo, .f-nav::before {
-      display: none !important;
-    }
-
-    /* Keep the search bar centered but spaced below title */
-    .main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
     }
   </style>
 
@@ -60,6 +39,7 @@
   <div id="particles-js">
     <script rel="preload" src="https://cdn.jsdelivr.net"></script>
     <div class="main">
+      <!-- Your New Branding -->
       <h1 class="title">SpyderSammy</h1>
       <p id="splash"></p>
       <div class="search-container">
