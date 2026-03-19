@@ -1,27 +1,15 @@
-<!doctype html>
-<html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="referrer" content="no-referrer" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" id="tab-favicon" href="https://ssl.gstatic.com" />
-  <title id="t">Home - Classroom</title>
-  <link rel="stylesheet" href="/assets/css/global.css?v=6" />
-  <link rel="stylesheet" href="/assets/css/h.css?v=01" />
-  <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
+  <!-- ... [Keep your other meta and link tags here] ... -->
   
   <style>
-    /* 1. Force Background to Black */
+    /* 1. Make the background pitch black */
     body, html, #particles-js {
       background: #000 !important;
       background-color: #000 !important;
       background-image: none !important;
     }
 
-    /* 2. Red/Yellow Font Styling */
+    /* 2. Red/Yellow Font Styling for SpyderSammy */
     .title {
       color: #ff0000 !important;
       -webkit-text-stroke: 1.5px #ffff00;
@@ -31,26 +19,26 @@
       -webkit-text-fill-color: initial !important;
     }
 
-    /* 3. WIPE THE "IN" LOGO COMPLETELY */
-    .f-nav, .f-nav *, .f-nav::before, .f-nav::after {
-      background-image: none !important;
-      background: none !important;
-      content: none !important;
-      display: none !important; /* This hides the entire top-left logo container */
+    /* 3. REMOVE ONLY THE LOGO (KEEP THE NAV TABS) */
+    /* This targets the logo's background image specifically */
+    .f-nav {
+      background-image: none !important; 
     }
-
-    /* Keep the main content area visible even if nav is hidden */
-    .main {
-      z-index: 10;
+    /* This removes the "IN" icon if it's a separate link/image in the corner */
+    .f-nav a:first-child img, 
+    .f-nav .logo, 
+    .f-nav::before {
+      display: none !important;
+      content: none !important;
+      background-image: none !important;
     }
   </style>
-
-  <script async src="https://pagead2.googlesyndication.com"
-    crossorigin="anonymous"></script>
 </head>
 
 <body class="center" onload="SplashT">
-  <div class="f-nav"></div> <!-- This is the container for the "IN" logo -->
+  <!-- The navbar remains, but the logo inside it is now hidden -->
+  <div class="f-nav"></div> 
+  
   <div id="particles-js">
     <script rel="preload" src="https://cdn.jsdelivr.net"></script>
     <div class="main">
@@ -63,20 +51,5 @@
       </div>
     </div>
   </div>
-  <script src="assets/js/index-3.js"></script>
-  <script src="/assets/js/h1.js"></script>
-  <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
-  <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
-  <script src="/assets/js/m1.js"></script>
-
-  <!-- Google Analytics Tracking -->
-  <script async src="https://www.googletagmanager.com"></script>
-  <script>
-    window.dataLayer = window.dataLayer || []
-    function gtag() { dataLayer.push(arguments) }
-    gtag("js", new Date())
-    gtag("config", "G-WKJQ5QHQTJ")
-  </script>
+  <!-- ... [Keep your scripts below] ... -->
 </body>
-
-</html>
