@@ -14,19 +14,31 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
   
   <style>
-    /* 1. The Red/Yellow Font Styling */
+    /* 1. Make background completely black and remove any gradients */
+    body, html, #particles-js {
+      background: #000 !important;
+      background-color: #000 !important;
+      background-image: none !important;
+    }
+
+    /* 2. Red/Yellow Font Styling */
     .title {
-      color: #ff0000 !important; /* Red text */
-      -webkit-text-stroke: 1.5px #ffff00; /* Yellow border */
+      color: #ff0000 !important;
+      -webkit-text-stroke: 1.5px #ffff00;
       font-weight: 900;
-      background: none !important; /* Removes original gradient/image */
+      background: none !important;
       -webkit-background-clip: initial !important;
       -webkit-text-fill-color: initial !important;
     }
 
-    /* 2. Remove the top-left Interstellar branding logo */
-    .f-nav, .f-nav * {
+    /* 3. Completely remove the top-left corner logo/branding */
+    .f-nav {
+      background: transparent !important;
+      border: none !important;
+    }
+    .f-nav::before, .f-nav::after, .f-nav * {
       background-image: none !important;
+      content: none !important; /* Kills any generated content logos */
     }
   </style>
 
@@ -39,7 +51,6 @@
   <div id="particles-js">
     <script rel="preload" src="https://cdn.jsdelivr.net"></script>
     <div class="main">
-      <!-- Your New Branding -->
       <h1 class="title">SpyderSammy</h1>
       <p id="splash"></p>
       <div class="search-container">
