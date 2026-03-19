@@ -14,18 +14,40 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
   
   <style>
-    /* This overrides the old "Interstellar" branding image/font */
+    /* 1. Make background completely black */
+    body, html, #particles-js {
+      background-color: #000 !important;
+      background-image: none !important;
+    }
+
+    /* 2. Style the SpyderSammy Title */
     .title {
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-weight: 800;
-      font-size: 4rem;
-      background: linear-gradient(90deg, #ff00ff, #00ffff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 10px rgba(0,255,255,0.5));
-      margin-bottom: 20px;
-      letter-spacing: -2px;
-      background-image: none !important; /* Forces the old binary logo to stay hidden */
+      color: #ff0000 !important; /* Red text */
+      -webkit-text-stroke: 2px #ffff00; /* Yellow border */
+      font-size: 5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-top: -50px; /* Moves it higher up */
+      margin-bottom: 10px;
+      background: none !important; /* Removes any background image */
+      -webkit-background-clip: initial !important;
+      -webkit-text-fill-color: initial !important;
+    }
+
+    /* 3. Remove the top-left Interstellar branding logo */
+    .f-nav {
+      background-image: none !important;
+    }
+    .f-nav img, .f-nav .logo, .f-nav::before {
+      display: none !important;
+    }
+
+    /* Keep the search bar centered but spaced below title */
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
   </style>
 
@@ -38,7 +60,6 @@
   <div id="particles-js">
     <script rel="preload" src="https://cdn.jsdelivr.net"></script>
     <div class="main">
-      <!-- The text-only branding -->
       <h1 class="title">SpyderSammy</h1>
       <p id="splash"></p>
       <div class="search-container">
@@ -53,17 +74,15 @@
   <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
   <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
   <script src="/assets/js/m1.js"></script>
-  <!-- DO NOT REMOVE-->
+
+  <!-- Google Analytics Tracking -->
   <script async src="https://www.googletagmanager.com"></script>
   <script>
     window.dataLayer = window.dataLayer || []
-    function gtag() {
-      dataLayer.push(arguments)
-    }
+    function gtag() { dataLayer.push(arguments) }
     gtag("js", new Date())
     gtag("config", "G-WKJQ5QHQTJ")
   </script>
-  <!-- DO NOT REMOVE-->
 </body>
 
 </html>
