@@ -11,17 +11,16 @@
   <link rel="stylesheet" href="/assets/css/global.css?v=6" />
   <link rel="stylesheet" href="/assets/css/h.css?v=01" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
   
   <style>
-    /* 1. Force background to black for this and all sub-pages */
+    /* 1. Universal black background for every page */
     html, body, #particles-js, .main, .center {
       background: #000 !important;
       background-color: #000 !important;
       background-image: none !important;
     }
 
-    /* 2. Red/Yellow Font Styling */
+    /* 2. Red/Yellow Font Styling for Title */
     .title {
       color: #ff0000 !important;
       -webkit-text-stroke: 1.5px #ffff00;
@@ -31,28 +30,30 @@
       -webkit-text-fill-color: initial !important;
     }
 
-    /* 3. Hide the logo specifically within the navbar */
-    /* If your navbar uses .f-nav as the logo container: */
-    .f-nav { 
+    /* 3. TARGETED LOGO REMOVAL: Keeps navbar links visible */
+    /* This targets only the image and logo link inside f-nav */
+    .f-nav img, 
+    .f-nav .logo, 
+    .f-nav .logo-container,
+    .f-nav a:first-child:not(.nav-link) { 
       display: none !important; 
     }
 
-    /* Ensure the actual navigation links stay visible if they are in a different container */
-    nav, .navbar, .nav-container {
+    /* Ensure f-nav itself is visible so the links stay */
+    .f-nav {
+      display: flex !important;
       background: #000 !important;
     }
   </style>
 
-  <script async src="https://pagead2.googlesyndication.com"
-    crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com" crossorigin="anonymous"></script>
 </head>
 
 <body class="center" onload="SplashT">
-  <!-- This is the element being hidden by the CSS above -->
+  <!-- Navbar container remains, but logo inside it is hidden -->
   <div class="f-nav"></div>
 
   <div id="particles-js">
-    <script rel="preload" src="https://cdn.jsdelivr.net"></script>
     <div class="main">
       <h1 class="title">SpyderSammy</h1>
       <p id="splash"></p>
@@ -70,7 +71,6 @@
   <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
   <script src="/assets/js/m1.js"></script>
 
-  <!-- Google Analytics Tracking -->
   <script async src="https://www.googletagmanager.com"></script>
   <script>
     window.dataLayer = window.dataLayer || []
@@ -79,5 +79,4 @@
     gtag("config", "G-WKJQ5QHQTJ")
   </script>
 </body>
-
 </html>
