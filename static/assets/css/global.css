@@ -76,3 +76,41 @@ body {
    position: absolute;
    z-index: 99;
 }
+/* --- SpyderSammy Global Fixes --- */
+
+/* 1. Force background to black on EVERY page */
+html, body, #particles-js, .main, .center, .container {
+  background: #000 !important;
+  background-color: #000 !important;
+  background-image: none !important;
+  color: white;
+}
+
+/* 2. Hide the Logo but keep Games/Settings links visible */
+.f-nav img, 
+.f-nav::before, 
+.f-nav::after,
+.f-nav [class*="logo"] { 
+  display: none !important; 
+  background-image: none !important;
+  content: none !important;
+}
+
+/* 3. Ensure navbar links are forced visible and centered */
+.f-nav {
+  display: flex !important;
+  align-items: center;
+  justify-content: center !important;
+  background: #000 !important;
+  height: 50px;
+}
+
+.f-nav a, .f-nav .nav-link {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ff0000 !important; /* Red links to match theme */
+  padding: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
