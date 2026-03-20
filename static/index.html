@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
   
   <style>
-    /* 1. Universal black background for every page */
+    /* 1. Global Black Background */
     html, body, #particles-js, .main, .center {
       background: #000 !important;
       background-color: #000 !important;
@@ -25,24 +25,36 @@
       color: #ff0000 !important;
       -webkit-text-stroke: 1.5px #ffff00;
       font-weight: 900;
-      background: none !important;
-      -webkit-background-clip: initial !important;
-      -webkit-text-fill-color: initial !important;
     }
 
-    /* 3. TARGETED LOGO REMOVAL: Keeps navbar links visible */
-    /* This targets only the image and logo link inside f-nav */
+    /* 3. TARGETED LOGO REMOVAL ONLY */
+    /* Hides any images or background-image logos inside the nav */
     .f-nav img, 
-    .f-nav .logo, 
-    .f-nav .logo-container,
-    .f-nav a:first-child:not(.nav-link) { 
+    .f-nav::before, 
+    .f-nav::after,
+    .f-nav [class*="logo"] { 
       display: none !important; 
+      background-image: none !important;
+      content: none !important;
     }
 
-    /* Ensure f-nav itself is visible so the links stay */
+    /* 4. RESTORE ALL LINKS */
+    /* This forces the Games, Browser, and Settings links to show */
+    .f-nav a, .f-nav .nav-link {
+      display: inline-block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      color: white !important; /* Ensures they aren't invisible against black */
+      padding: 0 15px;
+      text-decoration: none;
+    }
+
     .f-nav {
       display: flex !important;
+      align-items: center;
+      justify-content: center; /* Centers your links since logo is gone */
       background: #000 !important;
+      height: 50px;
     }
   </style>
 
@@ -50,7 +62,6 @@
 </head>
 
 <body class="center" onload="SplashT">
-  <!-- Navbar container remains, but logo inside it is hidden -->
   <div class="f-nav"></div>
 
   <div id="particles-js">
