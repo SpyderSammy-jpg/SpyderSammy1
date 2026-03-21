@@ -230,44 +230,44 @@ function randRange(min, max) {
             <span title="WiFi">📶</span>
             <span title="Volume">🔊</span>
             <span id="battery-icon" title="Check Battery">🔋</span>
-            <div style="text-align:right; line-height:1.2; font-size:12px;">
+            <div style="text-align:right; line-height:1.2; font-size:12px; padding: 0 5px;">
                 <div id="bar-time">00:00:00</div>
                 <div id="bar-date">0/0/0000</div>
             </div>
-            <span id="notif-bell" style="font-size:18px;">🔔</span>
+            <span id="notif-bell" style="font-size:18px; padding-left:5px;">🔔</span>
         </div>
     </div>
 
-    <!-- Quick Settings Popup -->
     <div id="qs-popup" class="spyder-popup">
         <h3 style="color:#ff0000; margin:0;">Quick Settings</h3>
         <div style="display:flex; justify-content:space-around; align-items:center;">
             <div style="text-align:center;">
-                <p>Volume</p>
-                <input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100">
+                <p style="font-size:12px; margin-bottom:5px;">Volume</p>
+                <input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100" value="100">
             </div>
             <div style="text-align:center;">
-                <p>Sun</p>
-                <input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100">
+                <p style="font-size:12px; margin-bottom:5px;">Brightness</p>
+                <input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100" value="100">
             </div>
-        </div>
-        <div id="wifi-info" style="border-top:1px solid #333; padding-top:10px; font-size:12px;">
-            Connected: <span style="color:#ffff00">Spyder_Network_Secure</span>
         </div>
     </div>
 
     <div id="spyder-sidebar">
-        <h2 class="red-text">Reminders <button onclick="addRem()" style="background:#ff0000; border:none; cursor:pointer;">+</button></h2>
-        <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:50px;"></div>
+        <h2 class="red-text">Reminders <button id="add-rem-btn" style="background:#ff0000; border:none; cursor:pointer; color:black; font-weight:bold; padding:0 5px;">+</button></h2>
+        <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:50px; font-size:13px;"></div>
 
         <h2 class="red-text">Notifications</h2>
-        <div id="notif-list" style="border:1px solid #222; padding:10px; min-height:100px; color:#aaa;">No current notifications</div>
+        <div id="notif-list" style="border:1px solid #222; padding:10px; min-height:80px; color:#aaa; font-size:12px;">No current notifications</div>
 
         <h2 class="red-text">Countdown to School End</h2>
-        <div id="countdown-timer" style="font-family:monospace; font-size:20px; color:#ffff00; text-align:center;"></div>
+        <div id="countdown-timer" style="font-family:monospace; font-size:18px; color:#ffff00; text-align:center;"></div>
         <p style="font-size:10px; color:#555; text-align:center;">*countdown may be inaccurate</p>
 
+        <h2 class="red-text">National Day Fact</h2>
+        <div id="nat-fact" style="font-size:13px; padding:10px; border:1px solid #222; color:#ffff00;">Searching...</div>
+
         <h2 class="red-text">SpyderCalendar</h2>
+        <div id="cal-header" style="text-align:center; font-weight:bold; color:#fff; margin-bottom:5px;"></div>
         <div id="cal-box"></div>
     </div>
     <div id="bri-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; pointer-events:none; z-index:10000; opacity:0;"></div>
@@ -275,28 +275,50 @@ function randRange(min, max) {
 
     document.body.insertAdjacentHTML('beforeend', ui);
 
-    // --- Logic ---
+    let reminders = JSON.parse(localStorage.getItem('spyderRems') || '[]');
+
+    // --- Time & Countdown ---
     function updateClock() {
         const now = new Date();
         document.getElementById('bar-time').innerText = now.toLocaleTimeString();
         document.getElementById('bar-date').innerText = now.toLocaleDateString();
 
-        // High Precision Countdown
         const diff = new Date("2026-06-19T00:00:00") - now;
         const d = Math.floor(diff / 86400000);
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
         document.getElementById('countdown-timer').innerText = `${d}d ${h}h ${m}m ${s}s`;
+
+        // Check Reminders
+        const timeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        reminders.forEach(r => {
+            if(r.time === timeKey && !r.fired) {
+                alert(`REMINDER: ${r.title}`);
+                r.fired = true;
+                localStorage.setItem('spyderRems', JSON.stringify(reminders));
+            }
+        });
     }
 
-    // Battery Logic
-    document.getElementById('battery-icon').onclick = async () => {
+    // --- Battery & Charging Detection ---
+    async function checkBattery() {
+        if (!navigator.getBattery) return;
         const bat = await navigator.getBattery();
-        alert(`Battery: ${Math.round(bat.level * 100)}% (${bat.charging ? 'Charging' : 'Discharging'})`);
-    };
+        const icon = document.getElementById('battery-icon');
+        
+        const updateIcon = () => {
+            const level = Math.round(bat.level * 100);
+            icon.innerHTML = bat.charging ? "⚡🔋" : "🔋";
+            icon.title = `Battery: ${level}% ${bat.charging ? '(Charging)' : ''}`;
+        };
 
-    // FPS Engine
+        bat.addEventListener('chargingchange', updateIcon);
+        bat.addEventListener('levelchange', updateIcon);
+        updateIcon();
+    }
+
+    // --- FPS Engine ---
     let frames = 0, last = performance.now();
     function checkFPS() {
         frames++;
@@ -312,7 +334,7 @@ function randRange(min, max) {
         requestAnimationFrame(checkFPS);
     }
 
-    // Toggle Quick Settings and Sidebar
+    // --- Toggle Logic ---
     document.getElementById('system-tray').onclick = (e) => {
         if(e.target.id === 'notif-bell') {
             document.getElementById('spyder-sidebar').classList.toggle('open');
@@ -323,20 +345,63 @@ function randRange(min, max) {
         }
     };
 
-    // Sliders
+    // --- Reminders ---
+    window.addRem = () => {
+        const title = prompt("Reminder Title:");
+        const time = prompt("Time (24h format HH:MM):", "12:00");
+        if(title && time) {
+            reminders.push({ title, time, id: Date.now(), fired: false });
+            localStorage.setItem('spyderRems', JSON.stringify(reminders));
+            renderRems();
+        }
+    };
+    document.getElementById('add-rem-btn').onclick = window.addRem;
+
+    window.delRem = (id) => {
+        if(confirm("Delete this reminder?")) {
+            reminders = reminders.filter(r => r.id !== id);
+            localStorage.setItem('spyderRems', JSON.stringify(reminders));
+            renderRems();
+        }
+    };
+
+    function renderRems() {
+        document.getElementById('rem-list').innerHTML = reminders.map(r => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span>
+                <span style="color:#ff0000">${r.time}</span>
+            </div>`).join('') || "No active reminders.";
+    }
+
+    // --- Calendar & Facts ---
+    function drawCal() {
+        const d = new Date();
+        const daysInMo = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+        document.getElementById('cal-header').innerText = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+        
+        // Example Festivals
+        const holidays = { "3-17": "St. Paddy's", "12-25": "Xmas", "10-31": "Halloween" };
+        
+        document.getElementById('cal-box').innerHTML = `<div class="calendar-grid">` + 
+            Array.from({length: daysInMo}, (_, i) => {
+                const day = i + 1;
+                const hKey = `${d.getMonth()+1}-${day}`;
+                const isToday = day === d.getDate();
+                const isHoliday = holidays[hKey];
+                return `<div class="cal-day ${isToday ? 'cal-today' : ''} ${isHoliday ? 'cal-event' : ''}" title="${isHoliday || ''}">${day}</div>`;
+            }).join('') + `</div>`;
+
+        // National Day Fact Logic
+        const natFacts = { "3-21": "National Countdown Day", "3-22": "National Water Day" };
+        document.getElementById('nat-fact').innerText = natFacts[`${d.getMonth()+1}-${d.getDate()}`] || "Nothing special today!";
+    }
+
+    // --- Sliders ---
     document.addEventListener('input', (e) => {
         if(e.target.id === 'bri-slider') document.getElementById('bri-overlay').style.opacity = (100 - e.target.value) / 100;
         if(e.target.id === 'vol-slider') document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value / 100);
     });
 
-    // Calendar
-    function drawCal() {
-        const d = new Date();
-        const days = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
-        document.getElementById('cal-box').innerHTML = `<div class="calendar-grid">` + 
-            Array.from({length: days}, (_, i) => `<div class="cal-day ${i+1===d.getDate()?'cal-today':''}">${i+1}</div>`).join('') + `</div>`;
-    }
-
     setInterval(updateClock, 1000);
-    checkFPS(); drawCal();
+    checkFPS(); drawCal(); renderRems(); checkBattery();
 })();
