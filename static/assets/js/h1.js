@@ -221,129 +221,85 @@ function randRange(min, max) {
     const ui = `
     <div id="spyder-bar">
         <div class="left-group">
-            <div class="fps-box">
-                <span id="fps-val" style="color:#ff0; font-size:11px; font-weight:bold;">0</span>
+            <div class="system-item" id="start-node"><img src="https://img.icons8.com" width="20"></div>
+            <div class="system-item">
+                <span id="fps-val" style="color:#ff0; font-size:11px; margin-right:4px;">0</span>
                 <div id="fps-dot" class="status-dot"></div>
-                <span style="font-size:8px; color:#666; font-weight:bold;">LIVE</span>
             </div>
             <div class="short-bars">
-                VOL <input type="range" id="vol-slider" min="0" max="100" value="100">
-                BRI <input type="range" id="bri-slider" min="10" max="100" value="100">
+                <input type="range" id="vol-slider" min="0" max="100" value="100" title="Volume">
+                <input type="range" id="bri-slider" min="0" max="100" value="100" title="Brightness">
             </div>
         </div>
         <div class="right-group">
-            <div class="battery-group" id="batt-box" title="Checking battery...">
-                <span id="charge-icon" style="display:none;">⚡</span>
-                <div class="batt-container"><div id="batt-fill"></div></div>
+            <div class="system-item" id="batt-btn" onclick="alert('Battery: ' + document.getElementById('batt-text').innerText)">
+                <span id="charge-icon" style="margin-right:2px">⚡</span>
+                <div class="batt-container" style="width:22px; height:11px; border:1px solid #777; padding:1px; border-radius:2px;">
+                    <div id="batt-fill" style="height:100%; background:#0f0;"></div>
+                </div>
+                <span id="batt-text" style="display:none">--%</span>
             </div>
-            <span id="notif-bell">🔔</span>
-            <div class="time-stack">
-                <span id="bar-time">00:00</span>
-                <span id="bar-date">Date</span>
+            <div class="system-item" id="notif-bell">🔔</div>
+            <div class="system-item" id="clock-tray" style="margin-right:8px;">
+                <div class="time-stack">
+                    <span id="bar-time">00:00</span>
+                    <span id="bar-date">Date</span>
+                </div>
             </div>
         </div>
     </div>
     <div id="spyder-sidebar">
-        <h3 style="color:#f00; font-size:13px; letter-spacing:1px;">REMINDERS <button id="add-rem-btn" style="float:right; background:#f00; color:#000; border:none; cursor:pointer; font-weight:bold;">+</button></h3>
-        <div id="rem-list" class="sidebar-box"></div>
-        <h3 style="color:#f00; font-size:13px; letter-spacing:1px;">ACTION CENTER</h3>
-        <div id="notif-history" class="sidebar-box" style="font-size:11px; color:#ccc;">No new notifications.</div>
-        <h3 style="color:#f00; font-size:13px; letter-spacing:1px;">CALENDAR</h3>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
-            <button id="prev-mo" style="background:none; border:1px solid #333; color:#f00; cursor:pointer;">&lt;</button>
-            <span id="cal-label" style="font-size:12px; font-weight:bold;"></span>
-            <button id="next-mo" style="background:none; border:1px solid #333; color:#f00; cursor:pointer;">&gt;</button>
-        </div>
+        <span class="close-side" id="side-x">&times;</span>
+        <h3 class="red-text">ACTION CENTER</h3>
+        <div id="notif-history" class="sidebar-box">No new notifications.</div>
+        <h3 class="red-text">CALENDAR AGENDA</h3>
         <div id="cal-box" class="sidebar-box"></div>
-        <div style="font-size:11px; color:#ffff00;">Events: <span id="nat-day" style="color:#fff;"></span></div>
     </div>
     <div id="bri-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; pointer-events:none; z-index:9999; opacity:0;"></div>`;
 
     document.body.insertAdjacentHTML('beforeend', ui);
 
-    let calD = new Date(), rems = JSON.parse(localStorage.getItem('spyderReminders') || '[]');
-    const holidays = { "12-25": "Christmas", "1-1": "New Year", "3-21": "Memory Day", "3-22": "Water Day" };
+    const holidays = { "12-25": "Christmas Day", "3-21": "National Memory Day", "3-22": "World Water Day" };
 
-    function pushNotification(msg) {
-        // 1. Desktop Popup
-        if (Notification.permission === "granted") {
-            new Notification("SpyderSammy", { body: msg });
+    // Unified Click Handler for Calendar Events
+    document.addEventListener('click', e => {
+        if(e.target.classList.contains('cal-holiday')) {
+            const dateKey = e.target.getAttribute('data-date');
+            alert(`Event: ${holidays[dateKey]}`);
         }
-        // 2. Sidebar Logging
-        const hist = document.getElementById('notif-history');
-        if (hist.innerText.includes("No new")) hist.innerHTML = "";
-        const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        hist.insertAdjacentHTML('afterbegin', `<div style="border-bottom:1px solid #222; padding:5px 0;"><b>${msg}</b><br><span style="color:#666">${time}</span></div>`);
-    }
-
-    function tick() {
-        const now = new Date();
-        document.getElementById('bar-time').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
-        document.getElementById('bar-date').innerText = now.toLocaleDateString();
-        
-        const key = `${now.getMonth()+1}-${now.getDate()}`;
-        document.getElementById('nat-day').innerText = holidays[key] || "No events today.";
-
-        const curT = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        rems.forEach(r => {
-            if(r.tm === curT && !r.fired) {
-                pushNotification(`Reminder: ${r.t}`);
-                r.fired = true;
-                localStorage.setItem('spyderReminders', JSON.stringify(rems));
-            }
-        });
-    }
-
-    if (navigator.getBattery) navigator.getBattery().then(b => {
-        const up = () => {
-            const lvl = Math.round(b.level * 100);
-            document.getElementById('batt-box').title = `Battery: ${lvl}% ${b.charging ? '(Charging)' : ''}`;
-            const fill = document.getElementById('batt-fill');
-            fill.style.width = lvl + "%";
-            fill.style.background = lvl < 20 ? "#f00" : (lvl < 50 ? "#ffa500" : "#0f0");
-            document.getElementById('charge-icon').style.display = b.charging ? "inline" : "none";
-        };
-        up(); b.onlevelchange = up; b.onchargingchange = up;
+        if(e.target.id === 'clock-tray' || e.target.id === 'notif-bell') {
+            document.getElementById('spyder-sidebar').classList.toggle('open');
+        }
     });
 
     function drawCal() {
-        const y = calD.getFullYear(), m = calD.getMonth();
-        document.getElementById('cal-label').innerText = calD.toLocaleString('default', {month:'long'}) + " " + y;
+        const d = new Date(), m = d.getMonth(), y = d.getFullYear();
         const days = new Date(y, m + 1, 0).getDate();
-        let h = `<div class="cal-grid">`;
+        let h = `<div class="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center;">`;
         for(let i=1; i<=days; i++) {
-            const isH = holidays[`${m+1}-${i}`], isT = i===new Date().getDate() && m===new Date().getMonth();
-            h += `<div class="cal-day ${isT?'cal-today':''} ${isH?'cal-holiday':''}" title="${isH||''}">${i}</div>`;
+            const key = `${m+1}-${i}`;
+            const isH = holidays[key];
+            h += `<div class="cal-day ${isH?'cal-holiday':''}" data-date="${key}">${i}</div>`;
         }
-        document.getElementById('cal-box').innerHTML = h + '</div>';
+        document.getElementById('cal-box').innerHTML = h + `</div>`;
     }
 
-    document.addEventListener('click', e => {
-        if(e.target.id === 'notif-bell') document.getElementById('spyder-sidebar').classList.toggle('open');
-        if(e.target.id === 'prev-mo' && calD.getFullYear() >= 2000) { calD.setMonth(calD.getMonth()-1); drawCal(); }
-        if(e.target.id === 'next-mo' && calD.getFullYear() <= 3000) { calD.setMonth(calD.getMonth()+1); drawCal(); }
-        if(e.target.id === 'add-rem-btn') {
-            const t = prompt("Title:"), tm = prompt("Time (HH:MM):");
-            if(t && tm) { rems.push({t, tm, id: Date.now(), fired: false}); localStorage.setItem('spyderReminders', JSON.stringify(rems)); renderRems(); }
-        }
+    // Battery Tooltip logic
+    if (navigator.getBattery) navigator.getBattery().then(b => {
+        const update = () => {
+            const lvl = Math.round(b.level * 100);
+            document.getElementById('batt-text').innerText = lvl + "%";
+            document.getElementById('batt-fill').style.width = lvl + "%";
+            document.getElementById('charge-icon').style.visibility = b.charging ? "visible" : "hidden";
+        };
+        update(); b.onlevelchange = update; b.onchargingchange = update;
     });
 
-    document.addEventListener('input', e => {
-        if(e.target.id === 'bri-slider') document.getElementById('bri-overlay').style.opacity = (100 - e.target.value)/100;
-        if(e.target.id === 'vol-slider') document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value/100);
-    });
+    setInterval(() => {
+        const n = new Date();
+        document.getElementById('bar-time').innerText = n.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('bar-date').innerText = n.toLocaleDateString([], {day:'2-digit', month:'2-digit', year:'numeric'});
+    }, 1000);
 
-    let fr = 0, last = performance.now();
-    function fps() { fr++; const n = performance.now(); if(n >= last+1000) { 
-        document.getElementById('fps-val').innerText = fr; 
-        const d = document.getElementById('fps-dot');
-        if(fr < 20) d.classList.add('beep-anim'); else { d.style.background = "#0f0"; d.classList.remove('beep-anim'); }
-        fr=0; last=n; 
-    } requestAnimationFrame(fps); }
-
-    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="font-size:11px; margin-bottom:5px;"><input type="checkbox" onchange="killR(${r.id})"> ${r.t} <span style="color:#f00; float:right;">${r.tm}</span></div>`).join('') || "No reminders."; }
-    window.killR = (id) => { rems = rems.filter(x => x.id !== id); localStorage.setItem('spyderReminders', JSON.stringify(rems)); renderRems(); };
-
-    if (window.Notification && Notification.permission !== "granted") Notification.requestPermission();
-    setInterval(tick, 1000); fps(); drawCal(); renderRems();
+    drawCal();
 })();
