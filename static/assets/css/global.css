@@ -114,35 +114,41 @@ html, body, #particles-js, .main, .center, .container {
   text-decoration: none;
   font-weight: bold;
 }
-/* --- SpyderSystem Global Styles --- */
+/* --- SpyderSystem Updated Layout --- */
 #spyder-bar {
-    position: fixed; bottom: 0; left: 0; width: 100%; height: 40px;
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 45px;
     background: #000; border-top: 1px solid #333; color: #fff;
-    display: flex; align-items: center; justify-content: flex-end; /* Align all to right */
-    padding: 0 15px; font-family: sans-serif; font-size: 12px; z-index: 10000;
-    gap: 15px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 15px; font-family: sans-serif; z-index: 10002; /* Higher than sidebar */
 }
-.bar-section { display: flex; align-items: center; gap: 10px; }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #000; }
-.beep-anim { animation: spyderBeep 0.5s infinite; }
-@keyframes spyderBeep { 0% { background: #ff0000; } 50% { background: #ffff00; } 100% { background: #ff0000; } }
 
+.left-group, .right-group { display: flex; align-items: center; gap: 12px; }
+
+/* Left Side: FPS then Bars */
+.fps-box { display: flex; flex-direction: column; align-items: center; min-width: 50px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 2px; }
+
+.short-bars { display: flex; align-items: center; gap: 8px; }
+.short-bars label { font-size: 9px; color: #ff0000; font-weight: bold; }
+.short-bars input[type="range"] { width: 40px; accent-color: #ff0000; cursor: pointer; }
+
+/* Right Side: Bell then Time/Date Stack */
+.time-stack { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; margin-left: 10px; }
+#bar-time { font-size: 14px; font-weight: bold; color: #fff; }
+#bar-date { font-size: 10px; color: #888; }
+#notif-bell { font-size: 18px; cursor: pointer; transition: transform 0.2s; }
+#notif-bell:hover { transform: scale(1.2); color: #ff0000; }
+
+/* Sidebar Adjustments */
 #spyder-sidebar {
-    position: fixed; right: -350px; top: 0; width: 320px; height: 100%;
+    position: fixed; right: -350px; top: 0; width: 320px; height: calc(100% - 45px); /* Leave bar visible */
     background: #000; border-left: 2px solid #ff0000; color: #fff;
-    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10001; padding: 20px; overflow-y: auto;
+    transition: 0.4s; z-index: 10001; padding: 20px; overflow-y: auto;
 }
 #spyder-sidebar.open { right: 0; }
-.sidebar-box { border: 1px solid #333; padding: 12px; margin-bottom: 15px; background: #050505; border-radius: 4px; }
-.red-text { color: #ff0000; font-weight: 900; text-transform: uppercase; margin: 10px 0; font-size: 13px; }
-.yellow-text { color: #ffff00; font-size: 12px; }
+.close-sidebar { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #ff0000; }
 
-/* Shortened & Labeled Bars */
-.slider-label { font-size: 10px; color: #888; text-transform: uppercase; }
-input[type="range"] { 
-    accent-color: #ff0000; cursor: pointer; width: 60px; height: 4px; 
-}
-.add-btn { background: #ff0000; color: #000; border: none; cursor: pointer; padding: 0 6px; font-weight: bold; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 10px; }
-.cal-day { padding: 8px; border: 1px solid #222; font-size: 10px; text-align: center; }
-.cal-today { background: #ff0000; color: #000; font-weight: bold; }
+/* Calendar Arrows */
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.cal-arrow { background: none; border: 1px solid #333; color: #ff0000; cursor: pointer; padding: 2px 8px; border-radius: 4px; }
+.cal-arrow:disabled { color: #222; border-color: #111; }
