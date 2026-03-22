@@ -220,8 +220,8 @@ function randRange(min, max) {
 (function() {
     const ui = `
     <div id="spyder-bar">
-        <div class="status-left">
-            <div id="fps-dot" class="status-dot"></div>
+        <div class="status-left" style="display:flex; align-items:center; gap:10px;">
+            <div id="fps-dot" style="width:12px; height:12px; border-radius:50%; border:2px solid #222;"></div>
             <div style="display:flex; flex-direction:column; line-height:1.1;">
                 <span id="online-status">Online</span>
                 <span style="font-size:10px; color:#ffff00;">FPS: <span id="fps-val">0</span></span>
@@ -235,7 +235,7 @@ function randRange(min, max) {
                 <div id="bat-fill" style="height:100%; background:#00ff00; width:0%;"></div>
                 <div id="bat-bolt" style="position:absolute; top:-3px; left:6px; color:#ffff00; font-size:14px; display:none;">⚡</div>
             </div>
-            <div id="clock-btn" style="text-align:right; font-size:11px; cursor:pointer;">
+            <div style="text-align:right; font-size:11px; cursor:pointer;" id="clock-btn">
                 <div id="bar-time">00:00:00</div>
                 <div id="bar-date">0/0/0000</div>
             </div>
@@ -247,13 +247,13 @@ function randRange(min, max) {
     <div id="bri-popup" class="spyder-popup"><span>BRI</span><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100"></div>
 
     <div id="spyder-sidebar">
-        <h2 class="red-text">Reminders <button id="add-rem-btn" style="background:red; border:none; cursor:pointer; font-weight:bold;">+</button></h2>
+        <h2 style="color:red;">Reminders <button id="add-rem-btn" style="background:red; border:none; cursor:pointer; color:black; font-weight:bold;">+</button></h2>
         <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:40px; font-size:13px;"></div>
-        <h2 class="red-text">National Day Fact</h2>
-        <div id="nat-fact" style="padding:10px; border:1px solid #222; font-size:12px; color:#ffff00;">None</div>
-        <h2 class="red-text">Countdown to School End</h2>
-        <div id="school-countdown" style="font-size:16px; text-align:center; color:#ffff00; font-family:monospace; padding:10px; border:1px solid #222;">00d 00h 00m 00s</div>
-        <h2 class="red-text">SpyderCalendar</h2>
+        
+        <h2 style="color:red;">Countdown to School End</h2>
+        <div id="school-countdown" style="font-size:16px; text-align:center; color:#ffff00; font-family:monospace; padding:10px; border:1px solid #222;"></div>
+        
+        <h2 style="color:red;">SpyderCalendar</h2>
         <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
             <button id="prev-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;"><</button>
             <span id="cal-header"></span>
@@ -269,142 +269,118 @@ function randRange(min, max) {
     let calDate = new Date();
     let rems = JSON.parse(localStorage.getItem('spyderRems') || '[]');
 
-    // --- Battery Fixed Logic ---
+    // --- Holiday & Festival Database ---
+    const festivals = {
+        "1-1": "New Year's Day", "1-7": "Orthodox Christmas", "2-17": "Lunar New Year", "2-18": "Ash Wednesday", 
+        "3-3": "Holi", "3-17": "St. Patricks Day", "3-20": "Eid al-Fitr", "4-3": "Good Friday", "4-5": "Easter",
+        "5-1": "Vesak Day", "5-27": "Eid al-Adha", "6-14": "Owner Bday", "2-24": "SpyderSammy Bday",
+        "11-8": "Diwali", "12-25": "Christmas", "12-26": "Kwanzaa"
+    };
+
+    // --- Greeting System ---
+    function checkGreetings() {
+        const key = `${new Date().getMonth() + 1}-${new Date().getDate()}`;
+        if (festivals[key] && !sessionStorage.getItem('greeted_' + key)) {
+            alert(`Happy ${festivals[key]}!`);
+            sessionStorage.setItem('greeted_' + key, 'true');
+        }
+    }
+
+    // --- Network Logic ---
+    document.getElementById('wifi-btn').onclick = () => {
+        const isPortnox = window.location.hostname.includes("portnox") || navigator.onLine; // Basic detector
+        let msg = `Status: ${navigator.onLine ? 'Online' : 'Offline'}\n`;
+        if (isPortnox) msg += `Name: PORTNOX_STUDENT\nSpeed: ${navigator.connection?.downlink || '---'} Mbps\n`;
+        msg += `Location: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+        alert(msg);
+    };
+
+    // --- Battery & Clock Logic ---
     if (navigator.getBattery) {
         navigator.getBattery().then(bat => {
-            const update = () => {
+            const up = () => {
                 document.getElementById('bat-fill').style.width = (bat.level * 100) + "%";
                 document.getElementById('bat-bolt').style.display = bat.charging ? "block" : "none";
             };
-            bat.onlevelchange = update; bat.onchargingchange = update; update();
-            
-            // Fixed: Battery click alert
-            document.getElementById('battery-btn').onclick = (e) => {
-                e.stopPropagation();
-                alert(`Battery: ${Math.round(bat.level * 100)}%\nStatus: ${bat.charging ? "Charging ⚡" : "Discharging"}`);
-            };
+            document.getElementById('battery-btn').onclick = () => alert(`Battery: ${Math.round(bat.level*100)}%\nCharging: ${bat.charging ? 'Yes' : 'No'}`);
+            bat.onlevelchange = up; bat.onchargingchange = up; up();
         });
     }
 
-    // --- Internet Logic ---
-    document.getElementById('wifi-btn').onclick = (e) => {
-        e.stopPropagation();
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        alert(`Network: ${conn?.effectiveType?.toUpperCase() || 'WiFi'}_Spyder_Secure\nStatus: ${navigator.onLine ? 'Online' : 'Offline'}`);
-    };
-
-    // --- Core Timer (Clock, Alarms, FPS, Countdown) ---
     let frames = 0, last = performance.now();
     function tick() {
         const now = new Date();
         document.getElementById('bar-time').innerText = now.toLocaleTimeString();
         document.getElementById('bar-date').innerText = now.toLocaleDateString();
 
-        // High Precision School Countdown
-        const target = new Date("2026-06-19T00:00:00");
-        const diff = target - now;
-        if (diff > 0) {
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-            document.getElementById('school-countdown').innerText = 
-                `${days}d ${hours.toString().padStart(2,'0')}h ${mins.toString().padStart(2,'0')}m ${secs.toString().padStart(2,'0')}s`;
-        } else {
-            document.getElementById('school-countdown').innerText = "School's Out!";
-        }
+        // School Countdown
+        const diff = new Date("2026-06-19T00:00:00") - now;
+        const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+        document.getElementById('school-countdown').innerText = `${d}d ${h}h ${m}m ${s}s`;
 
-        // Check Alarms
-        const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        rems.forEach(r => {
-            if(r.time === timeStr && !r.done) {
-                alert("REMINDER: " + r.title); r.done = true;
-                localStorage.setItem('spyderRems', JSON.stringify(rems));
+        // Alarms with Auto-Delete
+        const timeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        rems.forEach((r, i) => {
+            if(r.time === timeKey && !r.done) {
+                if(confirm("REMINDER: " + r.title + "\n\nClick 'Continue' to delete.")) {
+                    rems.splice(i, 1);
+                    localStorage.setItem('spyderRems', JSON.stringify(rems));
+                    renderRems();
+                }
+                r.done = true;
             }
         });
 
-        // FPS Engine
         frames++;
         if (performance.now() >= last + 1000) {
             document.getElementById('fps-val').innerText = frames;
-            const dot = document.getElementById('fps-dot');
-            dot.style.background = frames > 45 ? "#00ff00" : frames > 20 ? "#ffff00" : "#ff0000";
+            document.getElementById('fps-dot').style.background = frames > 45 ? "#00ff00" : frames > 20 ? "#ffff00" : "#ff0000";
             frames = 0; last = performance.now();
         }
         requestAnimationFrame(tick);
     }
 
-    // --- Calendar System ---
+    // --- Calendar with Weekdays ---
     function drawCal() {
         const d = calDate;
         document.getElementById('cal-header').innerText = d.toLocaleString('default', { month: 'long', year: 'numeric' });
         const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        const events = { "12-25": "Christmas", "6-14": "Owner Bday", "2-24": "SpyderSammy Bday", "3-17": "St. Patricks" };
+        const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
         
-        document.getElementById('cal-box').innerHTML = `<div class="calendar-grid">` + 
-            Array.from({length: days}, (_, i) => {
-                const day = i + 1;
-                const key = (d.getMonth()+1) + "-" + day;
-                const isToday = (day === new Date().getDate() && d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear());
-                return `<div class="cal-day ${isToday ? 'cal-today' : ''} ${events[key] ? 'cal-event' : ''}" title="${events[key] || ''}">${day}</div>`;
-            }).join('') + `</div>`;
+        let html = `<div class="calendar-grid">`;
+        weekDays.forEach(w => html += `<div class="cal-weekday">${w}</div>`);
+        for (let i = 1; i <= days; i++) {
+            const k = `${d.getMonth()+1}-${i}`;
+            const isT = (i === new Date().getDate() && d.getMonth() === new Date().getMonth());
+            html += `<div class="cal-day ${isT ? 'cal-today' : ''} ${festivals[k] ? 'cal-event' : ''}" title="${festivals[k] || ''}">${i}</div>`;
+        }
+        html += `</div>`;
+        document.getElementById('cal-box').innerHTML = html;
     }
 
-    // --- Fixed Button Logic ---
-    document.getElementById('notif-bell-btn').onclick = (e) => {
-        e.stopPropagation();
-        document.getElementById('spyder-sidebar').classList.toggle('open');
-    };
-
-    document.getElementById('vol-btn').onclick = (e) => {
-        e.stopPropagation();
-        const p = document.getElementById('vol-popup');
-        const state = p.style.display;
-        document.querySelectorAll('.spyder-popup').forEach(x => x.style.display = 'none');
-        p.style.display = (state === 'flex') ? 'none' : 'flex';
-    };
-
-    document.getElementById('bri-btn').onclick = (e) => {
-        e.stopPropagation();
-        const p = document.getElementById('bri-popup');
-        const state = p.style.display;
-        document.querySelectorAll('.spyder-popup').forEach(x => x.style.display = 'none');
-        p.style.display = (state === 'flex') ? 'none' : 'flex';
-    };
-
+    // --- Toggles & Setup ---
+    document.getElementById('notif-bell-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('spyder-sidebar').classList.toggle('open'); };
+    document.getElementById('vol-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('vol-popup').style.display='flex'; };
+    document.getElementById('bri-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('bri-popup').style.display='flex'; };
+    
     document.getElementById('add-rem-btn').onclick = () => {
-        const title = prompt("Reminder Title:");
-        const time = prompt("Time (HH:MM):", "12:00");
-        if(title && time) { 
-            rems.push({title, time, id: Date.now(), done: false}); 
-            localStorage.setItem('spyderRems', JSON.stringify(rems)); 
-            renderRems(); 
-        }
+        const title = prompt("Title:"), time = prompt("Time (HH:MM):");
+        if(title && time) { rems.push({title, time, id:Date.now(), done:false}); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }
     };
 
-    window.delRem = (id) => { if(confirm("Delete reminder?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
-    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
-
-    document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth() - 1); drawCal(); };
-    document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth() + 1); drawCal(); };
-
-    // --- Click Outside to Close Sliders/Sidebar ---
+    window.delRem = (id) => { if(confirm("Delete?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
+    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
+    
+    document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth()-1); drawCal(); };
+    document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth()+1); drawCal(); };
+    
     window.onclick = (e) => { 
-        if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) {
-            document.querySelectorAll('.spyder-popup').forEach(p => p.style.display = 'none');
-        }
-        if(!e.target.closest('#spyder-sidebar') && e.target.id !== 'notif-bell-btn') {
-            document.getElementById('spyder-sidebar').classList.remove('open');
-        }
+        if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) document.querySelectorAll('.spyder-popup').forEach(p=>p.style.display='none');
+        if(!e.target.closest('#spyder-sidebar') && e.target.id !== 'notif-bell-btn') document.getElementById('spyder-sidebar').classList.remove('open');
     };
 
-    // --- Slider Functional Logic ---
-    document.getElementById('bri-slider').oninput = (e) => {
-        document.getElementById('bri-overlay').style.opacity = (100 - e.target.value) / 100;
-    };
-    document.getElementById('vol-slider').oninput = (e) => {
-        document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value / 100);
-    };
+    document.getElementById('bri-slider').oninput = (e) => document.getElementById('bri-overlay').style.opacity = (100-e.target.value)/100;
+    document.getElementById('vol-slider').oninput = (e) => document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value/100);
 
-    tick(); drawCal(); renderRems();
+    tick(); drawCal(); renderRems(); checkGreetings();
 })();
