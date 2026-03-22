@@ -139,7 +139,30 @@ html, body, #particles-js, .main, .center, .container {
 }
 .thermometer-slider { -webkit-appearance: slider-vertical; height: 130px; accent-color: #ff0000; cursor: pointer; }
 .red-text { color: #ff0000; font-weight: bold; margin-top: 15px; display: block; }
-/* --- SPYDER TOOLS UI --- */
+/* --- SpyderSystem Ultimate Layout --- */
+#spyder-bar {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 48px;
+    background: rgba(0,0,0,0.95); border-top: 1px solid #333; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 15px; font-family: 'Segoe UI', sans-serif; z-index: 10002;
+}
+.task-right { display: flex; align-items: center; gap: 18px; padding-right: 45px; }
+
+#spyder-sidebar {
+    position: fixed; right: -405px; top: 0; width: 350px; height: calc(100% - 48px);
+    background: #000; border-left: 2px solid #ff0000; transition: 0.4s ease-in-out;
+    z-index: 10001; padding: 20px; overflow-y: auto; color: #fff;
+}
+#spyder-sidebar.open { right: 0; }
+
+/* Calendar Headers */
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; background: #111; padding: 10px; }
+.cal-weekday { text-align: center; color: #ff0000; font-size: 11px; font-weight: bold; padding-bottom: 5px; }
+.cal-day { text-align: center; padding: 8px; font-size: 12px; border: 1px solid #222; }
+.cal-today { background: #ff0000; color: #000; font-weight: bold; }
+.cal-event { border-bottom: 2.5px solid #ffff00; cursor: pointer !important; }
+
+/* SpyderTools UI */
 #spyder-tools-toggle {
     position: fixed; top: 110px; right: 15px; width: 45px; height: 45px;
     background: #000; border: 2px solid #ff0000; border-radius: 8px;
@@ -151,11 +174,7 @@ html, body, #particles-js, .main, .center, .container {
     background: #000; border: 1px solid #ff0000; border-radius: 8px;
     display: none; flex-direction: column; gap: 5px; padding: 10px; z-index: 10005;
 }
-.tool-btn {
-    background: #1a0000; border: 1px solid #ff0000; color: #fff;
-    padding: 10px; cursor: pointer; text-align: left; font-size: 13px; transition: 0.2s;
-}
-.tool-btn:hover { background: #ff0000; color: #000; font-weight: bold; }
+.tool-btn { background: #1a0000; border: 1px solid #ff0000; color: #fff; padding: 10px; cursor: pointer; text-align: left; font-size: 13px; }
 
 /* Draggable Windows */
 .spyder-window {
@@ -163,63 +182,28 @@ html, body, #particles-js, .main, .center, .container {
     min-width: 320px; z-index: 10010; display: none; flex-direction: column;
     box-shadow: 0 0 25px rgba(255,0,0,0.7);
 }
-.window-header {
-    background: #ff0000; color: #000; padding: 8px 12px; font-weight: bold;
-    display: flex; justify-content: space-between; align-items: center; cursor: move;
-}
+.window-header { background: #ff0000; color: #000; padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: move; }
 .window-body { padding: 15px; color: #fff; }
-.close-win { cursor: pointer; font-weight: bold; font-size: 18px; }
 
-/* Calculator Grid */
-.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
-.calc-btn { background: #222; border: 1px solid #ff0000; color: #fff; padding: 15px; cursor: pointer; border-radius: 4px; }
-
-/* Timer Circle */
-#timer-circle {
-    width: 140px; height: 140px; border: 4px solid #ff0000; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto;
+/* Calculator Sleek Display */
+#calc-display {
+    width: calc(100% - 20px); height: 45px; background: #000; color: #ff0000; 
+    border: 1px solid #ff0000; text-align: right; margin: 10px; font-size: 22px; 
+    padding: 5px 10px; font-family: monospace; box-sizing: border-box;
 }
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 10px 10px 10px; }
+.calc-btn { background: #222; border: 1px solid #ff0000; color: #fff; padding: 15px; cursor: pointer; }
 
-/* Camera App Toolbar */
+/* Camera App UI */
+#timer-circle { width: 140px; height: 140px; border: 4px solid #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto; }
 .camera-ui { display: flex; flex-direction: column; align-items: center; gap: 15px; }
 .camera-mode-toggle { display: flex; gap: 20px; background: #111; padding: 5px 15px; border-radius: 20px; border: 1px solid #333; }
-.mode-txt { cursor: pointer; font-size: 12px; font-weight: bold; color: #666; transition: 0.3s; }
+.mode-txt { cursor: pointer; font-size: 12px; color: #666; font-weight: bold; }
 .mode-txt.active { color: #ff0000; }
-.camera-shutter {
-    width: 60px; height: 60px; background: #fff; border: 4px solid #333; 
-    border-radius: 50%; cursor: pointer; transition: 0.2s;
-}
-.camera-shutter.recording { background: #ff0000; animation: rec-pulse 1s infinite; }
-@keyframes rec-pulse { 50% { opacity: 0.5; } }
-/* --- SpyderTools UI Refinements --- */
-#calc-display {
-    width: calc(100% - 20px); 
-    height: 45px; /* Shorter Screen */
-    background: #000; 
-    color: #ff0000; 
-    border: 1px solid #ff0000; 
-    text-align: right; 
-    margin: 10px; 
-    font-size: 22px; /* Adjusted font for shorter height */
-    padding: 5px 10px; 
-    font-family: 'Courier New', monospace;
-    box-sizing: border-box;
-}
+.camera-shutter { width: 60px; height: 60px; background: #fff; border: 4px solid #333; border-radius: 50%; cursor: pointer; }
+.camera-shutter.recording { background: #ff0000; animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: 0.5; } }
 
-.calc-grid { 
-    display: grid; 
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 8px; 
-    padding: 0 10px 10px 10px; 
-}
-
-.calc-btn { 
-    background: #1a1a1a; 
-    border: 1px solid #ff0000; 
-    color: #fff; 
-    padding: 12px; 
-    cursor: pointer; 
-    border-radius: 4px; 
-    font-weight: bold;
-}
-.calc-btn:hover { background: #ff0000; color: #000; }
+.gal-item { border: 1px solid #333; padding: 10px; margin-bottom: 10px; background: #111; }
+.gal-dl-btn { background: #0088ff; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 5px; width: 100%; }
+.red-text { color: #ff0000; font-weight: bold; margin-top: 15px; display: block; }
