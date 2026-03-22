@@ -242,17 +242,13 @@ function randRange(min, max) {
             <span id="notif-bell-btn" style="font-size:18px; cursor:pointer;">🔔</span>
         </div>
     </div>
-
     <div id="vol-popup" class="spyder-popup" style="display:none;"><span>VOL</span><input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100"></div>
     <div id="bri-popup" class="spyder-popup" style="display:none;"><span>BRI</span><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100"></div>
-
     <div id="spyder-sidebar">
         <h2 class="red-text">Reminders <button id="add-rem-btn" style="background:red; border:none; cursor:pointer; color:black; font-weight:bold;">+</button></h2>
         <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:40px; font-size:13px;"></div>
-        
         <h2 class="red-text">Countdown to School End</h2>
         <div id="school-countdown" style="font-size:16px; text-align:center; color:#ffff00; font-family:monospace; padding:10px; border:1px solid #222;"></div>
-        
         <h2 class="red-text">SpyderCalendar</h2>
         <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
             <button id="prev-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;"><</button>
@@ -269,20 +265,15 @@ function randRange(min, max) {
     let calDate = new Date();
     let rems = JSON.parse(localStorage.getItem('spyderRems') || '[]');
 
-    // --- Holiday & Festival Database ---
     const festivals = {
-        "1-1": { name: "New Year's Day", greet: "Happy New Year!" },
         "2-24": { name: "SpyderSammy's Birthday", greet: "Happy Birthday SpyderSammy!" },
         "3-17": { name: "St. Patrick's Day", greet: "Happy St. Patrick's Day!" },
         "3-19": { name: "Eid al-Fitr", greet: "Eid Mubarak!" },
-        "4-3": { name: "Good Friday", greet: "Have a Blessed Good Friday!" },
-        "4-5": { name: "Easter", greet: "Happy Easter!" },
+        "3-20": { name: "Eid al-Fitr", greet: "Eid Mubarak!" },
         "6-14": { name: "Owner's Birthday", greet: "Happy Birthday Owner!" },
-        "11-8": { name: "Diwali", greet: "Happy Diwali!" },
         "12-25": { name: "Christmas Day", greet: "Merry Christmas!" }
     };
 
-    // --- Greeting System ---
     function checkGreetings() {
         const key = `${new Date().getMonth() + 1}-${new Date().getDate()}`;
         if (festivals[key] && !sessionStorage.getItem('greeted_' + key)) {
@@ -291,16 +282,10 @@ function randRange(min, max) {
         }
     }
 
-    // --- Network Logic ---
     document.getElementById('wifi-btn').onclick = () => {
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        let msg = `Status: ${navigator.onLine ? 'Online' : 'Offline'}\n`;
-        msg += `Speed: ${conn?.downlink || '---'} Mbps\n`;
-        msg += `Location: America/New Jersey/Jersey City/07302`;
-        alert(msg);
+        alert(`Status: ${navigator.onLine ? 'Online' : 'Offline'}\nSpeed: ${navigator.connection?.downlink || '---'} Mbps\nLocation: America/New Jersey/Jersey City/07302`);
     };
 
-    // --- Battery Logic ---
     if (navigator.getBattery) {
         navigator.getBattery().then(bat => {
             const up = () => {
@@ -312,7 +297,6 @@ function randRange(min, max) {
         });
     }
 
-    // --- Core Timer Engine ---
     let frames = 0, last = performance.now();
     function tick() {
         const now = new Date();
@@ -344,13 +328,11 @@ function randRange(min, max) {
         requestAnimationFrame(tick);
     }
 
-    // --- Interactive Calendar ---
     function drawCal() {
         const d = calDate;
         document.getElementById('cal-header').innerText = d.toLocaleString('default', { month: 'long', year: 'numeric' });
         const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
         const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-        
         let html = `<div class="calendar-grid">`;
         weekDays.forEach(w => html += `<div class="cal-weekday">${w}</div>`);
         for (let i = 1; i <= days; i++) {
@@ -364,11 +346,9 @@ function randRange(min, max) {
         document.getElementById('cal-box').innerHTML = html;
     }
 
-    // --- Event Listeners ---
     document.getElementById('notif-bell-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('spyder-sidebar').classList.toggle('open'); };
     document.getElementById('vol-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('vol-popup').style.display='flex'; };
     document.getElementById('bri-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('bri-popup').style.display='flex'; };
-    
     document.getElementById('add-rem-btn').onclick = () => {
         const title = prompt("Title:"), time = prompt("Time (HH:MM):");
         if(title && time) { rems.push({title, time, id:Date.now(), done:false}); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }
@@ -376,15 +356,12 @@ function randRange(min, max) {
 
     window.delRem = (id) => { if(confirm("Delete?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
     function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
-    
     document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth()-1); drawCal(); };
     document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth()+1); drawCal(); };
-    
     window.onclick = (e) => { 
         if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) document.querySelectorAll('.spyder-popup').forEach(p=>p.style.display='none');
         if(!e.target.closest('#spyder-sidebar') && e.target.id !== 'notif-bell-btn') document.getElementById('spyder-sidebar').classList.remove('open');
     };
-
     document.getElementById('bri-slider').oninput = (e) => document.getElementById('bri-overlay').style.opacity = (100-e.target.value)/100;
     document.getElementById('vol-slider').oninput = (e) => document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value/100);
 
