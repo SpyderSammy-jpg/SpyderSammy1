@@ -221,44 +221,46 @@ function randRange(min, max) {
     const ui = `
     <div id="spyder-bar">
         <div class="task-left">
-            <div id="fps-dot" class="status-dot"></div>
+            <div id="fps-dot" class="fps-indicator"></div>
             <span id="online-status">Online</span>
-            <span style="font-size:11px; color:#ffff00">FPS: <span id="fps-val">0</span></span>
+            <span style="font-size:11px; color:#ffff00; margin-left:10px;">FPS: <span id="fps-val">0</span></span>
         </div>
         
-        <div class="task-right-btns">
-            <div class="tray-btn" id="wifi-btn" title="WiFi Status">📶</div>
-            <div class="tray-btn" id="vol-bri-btn" title="Quick Settings">🔊</div>
-            <div class="tray-btn" id="battery-btn" title="Battery Status">
-                <div class="battery-container">
-                    <div class="battery-fill" id="bat-fill"></div>
-                    <div class="battery-bolt" id="bat-bolt">⚡</div>
+        <div class="task-right-btns" style="display:flex; gap:5px;">
+            <div class="task-btn" id="wifi-btn" title="Internet Status">📶</div>
+            <div class="task-btn" id="vol-btn" title="Volume Control">🔊</div>
+            <div class="task-btn" id="bri-btn" title="Brightness Control">☀️</div>
+            <div class="task-btn" id="battery-btn" title="Battery Status">
+                <div class="battery-container" style="width:25px; height:12px; border:1px solid #fff; position:relative;">
+                    <div id="bat-fill" style="height:100%; background:#00ff00; width:0%;"></div>
+                    <div id="bat-bolt" style="position:absolute; top:-2px; left:5px; color:#ffff00; display:none;">⚡</div>
                 </div>
             </div>
-            <div class="tray-btn" id="clock-btn" style="text-align:right; flex-direction:column; line-height:1.1; font-size:12px;">
+            <div class="task-btn" id="clock-btn" style="flex-direction:column; line-height:1.1; font-size:11px; text-align:right;">
                 <div id="bar-time">00:00:00</div>
                 <div id="bar-date">0/0/0000</div>
             </div>
-            <div class="tray-btn" id="notif-bell-btn" style="font-size:18px;">🔔</div>
+            <div class="task-btn" id="notif-bell-btn" style="font-size:18px;">🔔</div>
         </div>
     </div>
 
-    <div id="qs-popup" class="spyder-popup">
-        <h3 style="color:#ff0000; margin:0;">Quick Settings</h3>
-        <div style="display:flex; justify-content:space-around;">
-            <div style="text-align:center;"><p>Volume</p><input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100"></div>
-            <div style="text-align:center;"><p>Brightness</p><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100" value="100"></div>
-        </div>
-    </div>
+    <!-- Separate Sliders -->
+    <div id="vol-popup" class="spyder-popup"><p style="font-size:10px;">Volume</p><input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100"></div>
+    <div id="bri-popup" class="spyder-popup"><p style="font-size:10px;">Brightness</p><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100"></div>
 
     <div id="spyder-sidebar">
         <h2 class="red-text">Reminders <button onclick="addRem()" style="background:#ff0000; border:none; cursor:pointer;">+</button></h2>
         <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:50px;"></div>
-        <h2 class="red-text">SpyderCalendar</h2>
-        <div class="cal-nav">
-            <button class="cal-btn" id="prev-mo"><</button>
-            <span id="cal-header"></span>
-            <button class="cal-btn" id="next-mo">></button>
+        <h2 class="red-text">Notifications</h2>
+        <div id="notif-list" style="border:1px solid #222; padding:10px; min-height:80px; font-size:12px; color:#aaa;"></div>
+        <h2 class="red-text">National Day Fact</h2>
+        <div id="nat-fact" style="padding:10px; border:1px solid #222; font-size:13px; color:#ffff00;">Searching...</div>
+        <h2 class="red-text">Countdown to School End</h2>
+        <div id="countdown-timer" style="font-family:monospace; font-size:20px; color:#ffff00; text-align:center;"></div>
+        <div id="cal-nav" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+            <button onclick="changeMo(-1)" class="cal-btn"><</button>
+            <span id="cal-title" style="font-weight:bold;"></span>
+            <button onclick="changeMo(1)" class="cal-btn">></button>
         </div>
         <div id="cal-box"></div>
     </div>
@@ -268,71 +270,98 @@ function randRange(min, max) {
     document.body.insertAdjacentHTML('beforeend', ui);
 
     let calDate = new Date();
-    let frames = 0, lastFpsTime = performance.now();
+    let reminders = JSON.parse(localStorage.getItem('spyderRems') || '[]');
 
-    // --- Battery Notification Logic ---
-    async function checkBattery() {
-        const bat = await navigator.getBattery();
-        const update = () => {
-            const level = Math.round(bat.level * 100);
-            document.getElementById('bat-fill').style.width = level + '%';
-            document.getElementById('bat-bolt').style.display = bat.charging ? 'block' : 'none';
-        };
-        document.getElementById('battery-btn').onclick = () => alert(`Battery: ${Math.round(bat.level * 100)}% (${bat.charging ? 'Charging' : 'Discharging'})`);
-        bat.onchargingchange = update; bat.onlevelchange = update; update();
-    }
-
-    // --- WiFi Notification Logic ---
+    // --- Internet & Network Detector ---
     document.getElementById('wifi-btn').onclick = () => {
-        const fps = parseInt(document.getElementById('fps-val').innerText);
-        const quality = fps > 40 ? "Excellent" : fps > 20 ? "Good" : "Poor";
-        alert(`Connected: Spyder_Secure_Network\nQuality: ${quality} (Based on ${fps} FPS performance)`);
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const type = connection ? connection.effectiveType : "Unknown";
+        const speed = connection ? connection.downlink + " Mbps" : "N/A";
+        alert(`Connection: ${navigator.onLine ? 'Online' : 'Offline'}\nType: ${type}\nEstimated Speed: ${speed}`);
     };
 
-    // --- Calendar Navigation (2000-3000) ---
+    // --- FPS & Status Circle Logic ---
+    let frames = 0, lastTime = performance.now();
+    function checkStatus() {
+        frames++;
+        const now = performance.now();
+        if (now >= lastTime + 1000) {
+            const fps = frames;
+            document.getElementById('fps-val').innerText = fps;
+            const dot = document.getElementById('fps-dot');
+            const stat = document.getElementById('online-status');
+            
+            if (!navigator.onLine) {
+                dot.className = "fps-indicator fps-flash"; 
+                stat.innerText = "Offline";
+            } else {
+                dot.classList.remove('fps-flash');
+                stat.innerText = "Online";
+                dot.style.background = fps > 45 ? "#00ff00" : fps > 20 ? "#ffff00" : "#ff0000";
+            }
+            frames = 0; lastTime = now;
+        }
+        requestAnimationFrame(checkStatus);
+    }
+
+    // --- System Notification Listener ---
+    // Note: Browsers cannot directly "read" Windows/Chrome OS notifications for security.
+    // However, this script will display notifications sent TO the site in the sidebar.
+    function addSidebarNotification(title, body) {
+        const list = document.getElementById('notif-list');
+        const item = `<div style="border-bottom:1px solid #333; padding:5px;"><b>${title}</b>: ${body}</div>`;
+        list.insertAdjacentHTML('afterbegin', item);
+    }
+
+    // --- Popups & Buttons ---
+    document.getElementById('vol-btn').onclick = () => togglePopup('vol-popup');
+    document.getElementById('bri-btn').onclick = () => togglePopup('bri-popup');
+    document.getElementById('notif-bell-btn').onclick = () => document.getElementById('spyder-sidebar').classList.toggle('open');
+    
+    function togglePopup(id) {
+        const p = document.getElementById(id);
+        const state = p.style.display;
+        document.querySelectorAll('.spyder-popup').forEach(x => x.style.display = 'none');
+        p.style.display = (state === 'flex') ? 'none' : 'flex';
+    }
+
+    // --- National Day & Holidays ---
+    async function fetchHoliday() {
+        try {
+            const res = await fetch(`https://date.nager.at`);
+            const data = await res.json();
+            const today = new Date().toISOString().split('T')[0];
+            const h = data.find(x => x.date === today);
+            document.getElementById('nat-fact').innerText = h ? `Holiday: ${h.name}` : "Nothing special about today!";
+        } catch(e) { document.getElementById('nat-fact').innerText = "None"; }
+    }
+
+    // --- Calendar Navigation ---
+    window.changeMo = (dir) => {
+        calDate.setMonth(calDate.getMonth() + dir);
+        if (calDate.getFullYear() < 2000) calDate.setFullYear(2000);
+        if (calDate.getFullYear() > 3000) calDate.setFullYear(3000);
+        drawCal();
+    };
+
     function drawCal() {
-        const year = calDate.getFullYear();
-        const month = calDate.getMonth();
-        if (year < 2000 || year > 3000) return; // Bounds
-        
-        document.getElementById('cal-header').innerText = calDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-        const days = new Date(year, month + 1, 0).getDate();
-        
+        document.getElementById('cal-title').innerText = calDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        const days = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0).getDate();
         document.getElementById('cal-box').innerHTML = `<div class="calendar-grid">` + 
             Array.from({length: days}, (_, i) => {
-                const isToday = (i+1 === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear());
+                const isToday = (i+1 === new Date().getDate() && calDate.getMonth() === new Date().getMonth());
                 return `<div class="cal-day ${isToday ? 'cal-today' : ''}">${i+1}</div>`;
             }).join('') + `</div>`;
     }
 
-    document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth() - 1); drawCal(); };
-    document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth() + 1); drawCal(); };
+    // --- Initializers ---
+    setInterval(() => {
+        const n = new Date();
+        document.getElementById('bar-time').innerText = n.toLocaleTimeString();
+        document.getElementById('bar-date').innerText = n.toLocaleDateString();
+        const diff = new Date("2026-06-19T00:00:00") - n;
+        document.getElementById('countdown-timer').innerText = Math.floor(diff/86400000) + "d Left";
+    }, 1000);
 
-    // --- Button Toggles ---
-    document.getElementById('notif-bell-btn').onclick = () => document.getElementById('spyder-sidebar').classList.toggle('open');
-    document.getElementById('vol-bri-btn').onclick = () => {
-        const qs = document.getElementById('qs-popup');
-        qs.style.display = qs.style.display === 'flex' ? 'none' : 'flex';
-    };
-
-    // --- FPS & Clock & Sliders ---
-    function loop() {
-        const now = new Date();
-        document.getElementById('bar-time').innerText = now.toLocaleTimeString();
-        document.getElementById('bar-date').innerText = now.toLocaleDateString();
-        
-        frames++;
-        if (performance.now() >= lastFpsTime + 1000) {
-            document.getElementById('fps-val').innerText = frames;
-            frames = 0; lastFpsTime = performance.now();
-        }
-        requestAnimationFrame(loop);
-    }
-
-    document.addEventListener('input', (e) => {
-        if(e.target.id === 'bri-slider') document.getElementById('bri-overlay').style.opacity = (100 - e.target.value) / 100;
-        if(e.target.id === 'vol-slider') document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value / 100);
-    });
-
-    loop(); checkBattery(); drawCal();
+    checkStatus(); drawCal(); fetchHoliday();
 })();
