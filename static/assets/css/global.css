@@ -211,3 +211,25 @@ html, body, #particles-js, .main, .center, .container {
 .gal-item { border: 1px solid #333; padding: 10px; margin-bottom: 10px; background: #111; }
 .gal-dl-btn { background: #0088ff; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-top: 5px; width: 100%; font-size: 11px; }
 .gal-clear-btn { background: #ff0000; color: white; border: none; padding: 10px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+/* --- New SpyderTools Styles --- */
+/* Sticky Notes */
+.spyder-sticky {
+    position: fixed; width: 200px; min-height: 150px; 
+    background: #ffff88; color: #000; padding: 10px;
+    box-shadow: 5px 5px 10px rgba(0,0,0,0.3); z-index: 10008;
+    border-radius: 2px; font-family: 'Comic Sans MS', cursive;
+}
+.sticky-header { cursor: move; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; margin-bottom: 5px; font-weight: bold; display: flex; justify-content: space-between; }
+
+/* Vault Tiles */
+.vault-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.vault-card { background: #111; border: 1px solid #ff0000; padding: 10px; text-align: center; cursor: pointer; transition: 0.3s; }
+.vault-card:hover { background: #ff0000; color: #000; }
+
+/* Media Player */
+#media-bars { display: flex; align-items: flex-end; gap: 2px; height: 20px; }
+.bar { width: 3px; background: #ff0000; animation: bounce 0.5s infinite alternate; }
+@keyframes bounce { from { height: 3px; } to { height: 20px; } }
+
+/* Weather Widget */
+.weather-info { font-size: 24px; color: #00ccff; text-shadow: 0 0 5px #000; }
