@@ -376,6 +376,7 @@ function randRange(min, max) {
 })();
 (function() {
     const toolHTML = `
+    <!-- Sidebar must exist in DOM before tools for sliding CSS logic -->
     <div id="spyder-tools-toggle">🛠️</div>
     <div id="spyder-tools-menu">
         <button class="tool-btn" onclick="openSTool('calc')">SpyderCalculator</button>
@@ -414,7 +415,7 @@ function randRange(min, max) {
         </div>
     </div>
 
-    <!-- Window: Screenshots -->
+    <!-- Window: Screenshots (Renamed) -->
     <div id="win-snip" class="spyder-window" style="top:50%; left:50%; transform:translate(-50%,-50%); width:300px;">
         <div class="window-header"><span>SpyderScreenshots</span><span class="close-win" onclick="closeSTool('snip')">X</span></div>
         <div class="window-body camera-ui">
@@ -423,16 +424,16 @@ function randRange(min, max) {
                 <span id="m-video" class="mode-txt" onclick="setCamMode('v')">VIDEO</span>
             </div>
             <div id="camera-shutter" class="camera-shutter" onclick="triggerCamera()"></div>
-            <p style="font-size:10px; color:#666;">Select "This Tab" for internal captures</p>
+            <p style="font-size:10px; color:#666;">Choose "This Tab" for screen captures</p>
             <button class="tool-btn" onclick="openSTool('gal')" style="width:100%; text-align:center;">📂 View Gallery</button>
         </div>
     </div>
 
-    <!-- Window: Gallery -->
+    <!-- Window: Gallery (With Clear All) -->
     <div id="win-gal" class="spyder-window" style="top:50px; right:50px; width:350px;">
         <div class="window-header"><span>SpyderGallery</span><span class="close-win" onclick="closeSTool('gal')">X</span></div>
         <div class="window-body" style="display:flex; flex-direction:column; max-height:500px;">
-            <div id="gal-list" style="overflow-y:auto; flex-grow:1;">No Captures.</div>
+            <div id="gal-list" style="overflow-y:auto; flex-grow:1; min-height:100px;">No Captures.</div>
             <button class="gal-clear-btn" onclick="clearSpyderGal()">CLEAR ALL GALLERY</button>
         </div>
     </div>
@@ -447,9 +448,10 @@ function randRange(min, max) {
         if(id === 'gal') loadSpyderGal();
     };
     window.closeSTool = (id) => document.getElementById('win-' + id).style.display = 'none';
+    
     document.getElementById('spyder-tools-toggle').onclick = () => {
         const m = document.getElementById('spyder-tools-menu');
-        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');
     };
 
     // --- Calculator Engine ---
@@ -546,7 +548,7 @@ function randRange(min, max) {
     };
 
     window.clearSpyderGal = () => {
-        if(confirm("Are you sure you want to delete all captures?")) {
+        if(confirm("Delete everything in the gallery?")) {
             localStorage.setItem('spyder_gal', '[]');
             loadSpyderGal();
         }
