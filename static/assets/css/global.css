@@ -122,33 +122,39 @@ html, body, #particles-js, .main, .center, .container {
     padding: 0 15px; font-family: 'Segoe UI', Tahoma, sans-serif; z-index: 10002;
 }
 
-/* Sidebar - Fully hidden at -380px */
+/* Icons moved slightly left for full visibility */
+.task-right { 
+    display: flex; align-items: center; gap: 18px; 
+    padding-right: 45px; 
+}
+
+/* Sidebar - Fully hidden at -400px to prevent peeking */
 #spyder-sidebar {
-    position: fixed; right: -380px; top: 0; width: 350px; height: calc(100% - 48px);
+    position: fixed; right: -400px; top: 0; width: 350px; height: calc(100% - 48px);
     background: #000; border-left: 2px solid #ff0000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10001; padding: 20px; overflow-y: auto; color: #fff;
 }
 #spyder-sidebar.open { right: 0; }
 
-/* Status Circle & Online Text Arrangement */
+/* Status Circle & Text */
 .status-left { display: flex; align-items: center; gap: 10px; }
-.status-text-stack { display: flex; flex-direction: column; line-height: 1.2; }
+.status-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #222; }
 
-/* Tray Icons - Moved slightly left for visibility */
-.task-right { 
-    display: flex; align-items: center; gap: 14px; 
-    padding-right: 20px; /* Buffer from right edge */
-}
-
-/* Thermometer Style Popup (Angled & Red) */
+/* Red Vertical Thermometer Popups */
 .spyder-popup {
-    position: fixed; bottom: 55px; right: 25px; width: 90px;
+    position: fixed; bottom: 55px; right: 45px; width: 80px;
     background: #050505; border: 2px solid #ff0000; padding: 15px;
     border-radius: 8px; display: none; flex-direction: column; align-items: center; z-index: 10003;
-    transform: rotate(-2deg); /* Subtle angle for 'thermometer' look */
 }
-
 .thermometer-slider {
     -webkit-appearance: slider-vertical;
     width: 20px; height: 130px; accent-color: #ff0000; cursor: pointer;
 }
+
+/* Calendar Grid */
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; background: #111; padding: 10px; }
+.cal-day { text-align: center; padding: 8px; font-size: 12px; border: 1px solid #222; }
+.cal-today { background: #ff0000; color: #000; font-weight: bold; }
+.cal-event { border-bottom: 2px solid #ffff00; }
+
+.red-text { color: #ff0000; font-weight: bold; margin-top: 15px; display: block; }
