@@ -375,9 +375,6 @@ function randRange(min, max) {
     tick(); drawCal(); renderRems(); checkGreetings();
 })();
 (function() {
-    // Load existing stickies from browser memory
-    let stickies = JSON.parse(localStorage.getItem('spyder_stickies') || '[]');
-
     const toolHTML = `
     <!-- Sidebar must exist in DOM before tools for sliding CSS logic -->
     <div id="spyder-tools-toggle">🛠️</div>
@@ -386,7 +383,6 @@ function randRange(min, max) {
         <button class="tool-btn" onclick="openSTool('timer')">SpyderTimer</button>
         <button class="tool-btn" onclick="openSTool('sw')">SpyderStopwatch</button>
         <button class="tool-btn" onclick="openSTool('snip')">SpyderScreenshots</button>
-        <button class="tool-btn" onclick="spawnSticky()">SpyderNotes (Sticky)</button>
     </div>
 
     <!-- Window: Calculator -->
@@ -442,80 +438,7 @@ function randRange(min, max) {
         </div>
     </div>
     `;
-
-    document.body.insertAdjacentHTML('beforeend', toolHTML);
-
-    // --- STICKY NOTES LOGIC ---
-    window.spawnSticky = (data = null) => {
-        const colors = ['yellow', 'blue', 'pink', 'green'];
-        const id = data ? data.id : Date.now();
-        const color = data ? data.color : colors[Math.floor(Math.random() * colors.length)];
-        const x = data ? data.x : Math.random() * (window.innerWidth - 250);
-        const y = data ? data.y : Math.random() * (window.innerHeight - 300);
-        const text = data ? data.text : "";
-
-        const stickyHTML = `
-            <div id="sticky-${id}" class="spyder-sticky sticky-${color}" style="left:${x}px; top:${y}px;">
-                <div class="sticky-header">
-                    <span>Sticky Note</span>
-                    <div>
-                        <span onclick="removeSticky(${id})" style="cursor:pointer; font-weight:bold;">✖</span>
-                    </div>
-                </div>
-                <textarea class="sticky-content" oninput="updateSticky(${id}, this.value)" placeholder="Write a note...">${text}</textarea>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', stickyHTML);
-        const el = document.getElementById(`sticky-${id}`);
-        makeStickyDraggable(el, id);
-
-        if (!data) {
-            stickies.push({ id, color, x, y, text });
-            saveStickies();
-        }
-    };
-
-    window.updateSticky = (id, text) => {
-        const s = stickies.find(n => n.id === id);
-        if (s) { s.text = text; saveStickies(); }
-    };
-
-    window.removeSticky = (id) => {
-        const el = document.getElementById(`sticky-${id}`);
-        if (el) el.remove();
-        stickies = stickies.filter(n => n.id !== id);
-        saveStickies();
-    };
-
-    function saveStickies() {
-        localStorage.setItem('spyder_stickies', JSON.stringify(stickies));
-    }
-
-    function makeStickyDraggable(el, id) {
-        let ox = 0, oy = 0;
-        el.onmousedown = (e) => {
-            if (e.target.tagName === 'TEXTAREA') return;
-            ox = e.clientX - el.offsetLeft;
-            oy = e.clientY - el.offsetTop;
-            document.onmousemove = (e) => {
-                const nx = e.clientX - ox;
-                const ny = e.clientY - oy;
-                el.style.left = nx + "px";
-                el.style.top = ny + "px";
-                const s = stickies.find(n => n.id === id);
-                if (s) { s.x = nx; s.y = ny; saveStickies(); }
-            };
-            document.onmouseup = () => { document.onmousemove = null; };
-        };
-    }
-
-    // Load existing stickies on boot
-    stickies.forEach(s => spawnSticky(s));
-
-    // --- REMAINDER OF TOOL ENGINE ---
-    // (Ensure your existing openSTool, calcDo, runSpyderTimer, etc. are below this)
-})();
+  
     document.body.insertAdjacentHTML('beforeend', toolHTML);
 
     // --- Core Tool Management ---
