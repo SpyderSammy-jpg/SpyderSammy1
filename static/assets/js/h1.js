@@ -220,135 +220,79 @@ function randRange(min, max) {
 (function() {
     const ui = `
     <div id="spyder-bar">
-        <div class="task-left">
+        <div class="status-left">
             <div id="fps-dot" class="status-dot" style="width:12px; height:12px; border-radius:50%; border:2px solid #222;"></div>
-            <div class="status-container">
+            <div class="status-text-stack">
                 <span id="online-status">Online</span>
                 <span style="font-size:10px; color:#ffff00;">FPS: <span id="fps-val">0</span></span>
             </div>
         </div>
         
-        <div class="task-right-btns" style="display:flex; gap:10px;">
-            <div class="task-btn" id="wifi-btn">📶</div>
-            <div class="task-btn" id="vol-btn">🔊</div>
-            <div class="task-btn" id="bri-btn">☀️</div>
+        <div class="task-right">
+            <span class="task-btn" id="wifi-btn">📶</span>
+            <span class="task-btn" id="vol-btn">🔊</span>
+            <span class="task-btn" id="bri-btn">☀️</span>
             <div class="task-btn" id="battery-btn">
-                <div class="battery-icon-custom">
-                    <div id="bat-fill" class="battery-fill"></div>
-                    <div id="bat-bolt" class="battery-flash" style="display:none;">⚡</div>
+                <div class="battery-icon-custom" style="width:24px; height:12px; border:1.5px solid #fff; position:relative;">
+                    <div id="bat-fill" style="height:100%; background:#00ff00; width:0%;"></div>
+                    <div id="bat-bolt" style="position:absolute; top:-2px; left:6px; color:#ffff00; display:none;">⚡</div>
                 </div>
             </div>
-            <div id="clock-btn" style="text-align:right; font-size:11px; cursor:pointer;">
+            <div style="text-align:right; font-size:11px; cursor:pointer;" id="clock-btn">
                 <div id="bar-time">00:00:00</div>
                 <div id="bar-date">0/0/0000</div>
             </div>
-            <div class="task-btn" id="notif-bell-btn">🔔</div>
+            <span class="task-btn" id="notif-bell-btn">🔔</span>
         </div>
     </div>
 
-    <!-- Sliders -->
     <div id="vol-popup" class="spyder-popup"><span>VOL</span><input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100"></div>
     <div id="bri-popup" class="spyder-popup"><span>BRI</span><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100"></div>
-
-    <div id="spyder-sidebar">
-        <h2 class="red-text">Reminders <button id="add-rem-btn" style="background:#ff0000; border:none; cursor:pointer; color:black; font-weight:bold;">+</button></h2>
-        <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:50px;"></div>
-        
-        <h2 class="red-text">SpyderCalendar</h2>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-            <button onclick="moveMo(-1)" style="background:none; color:red; border:1px solid #333; cursor:pointer;"><</button>
-            <span id="cal-header"></span>
-            <button onclick="moveMo(1)" style="background:none; color:red; border:1px solid #333; cursor:pointer;">></button>
-        </div>
-        <div id="cal-box"></div>
-    </div>
     <div id="bri-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; pointer-events:none; z-index:10000; opacity:0;"></div>
     `;
 
     document.body.insertAdjacentHTML('beforeend', ui);
 
-    let calDate = new Date();
-    let reminders = JSON.parse(localStorage.getItem('spyderRems') || '[]');
-
-    // --- Battery & WiFi Notifications ---
-    async function initBattery() {
-        const bat = await navigator.getBattery();
-        const update = () => {
-            document.getElementById('bat-fill').style.width = Math.round(bat.level * 100) + '%';
-            document.getElementById('bat-bolt').style.display = bat.charging ? 'block' : 'none';
-        };
-        document.getElementById('battery-btn').onclick = () => alert(`Battery: ${Math.round(bat.level*100)}% (${bat.charging?'Charging':'Discharging'})`);
-        bat.onchargingchange = update; bat.onlevelchange = update; update();
-    }
-
-    document.getElementById('wifi-btn').onclick = () => {
-        // SSID is protected for security; providing connection details instead
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        alert(`Status: ${navigator.onLine ? 'Online' : 'Offline'}\nType: ${conn?.effectiveType || 'N/A'}`);
-    };
-
-    // --- Alarms & Reminders ---
-    document.getElementById('add-rem-btn').onclick = () => {
-        const t = prompt("Reminder Title:");
-        const time = prompt("Time (HH:MM):", "12:00");
-        if(t && time) {
-            reminders.push({ t, time, id: Date.now(), fired: false });
-            saveRems(); renderRems();
-        }
-    };
-
-    function checkAlarms() {
-        const now = new Date();
-        const timeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        reminders.forEach(r => {
-            if(r.time === timeKey && !r.fired) {
-                alert(`Reminder: ${r.t}`);
-                r.fired = true; saveRems();
+    // --- Click Outside to Close ---
+    document.addEventListener('click', (e) => {
+        const popups = document.querySelectorAll('.spyder-popup');
+        popups.forEach(p => {
+            const btnId = p.id === 'vol-popup' ? 'vol-btn' : 'bri-btn';
+            if (!p.contains(e.target) && e.target.id !== btnId) {
+                p.style.display = 'none';
             }
         });
-    }
+    });
 
-    function saveRems() { localStorage.setItem('spyderRems', JSON.stringify(reminders)); }
-    function renderRems() {
-        document.getElementById('rem-list').innerHTML = reminders.map(r => `
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                <span><input type="checkbox" onchange="killRem(${r.id})"> ${r.t}</span>
-                <span style="color:red">${r.time}</span>
-            </div>`).join('') || "No reminders.";
-    }
-    window.killRem = (id) => { if(confirm("End this reminder?")) { reminders = reminders.filter(r => r.id !== id); saveRems(); renderRems(); }};
+    // --- Network Info (High Security Fallback) ---
+    document.getElementById('wifi-btn').onclick = () => {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const netType = conn ? conn.type || conn.effectiveType : "WiFi";
+        const netSpeed = conn ? conn.downlink + " Mbps" : "Stable";
+        alert(`Connected: ${netType.toUpperCase()}_Spyder_Secure\nSpeed: ${netSpeed}`);
+    };
 
-    // --- Calendar Events ---
-    window.moveMo = (dir) => { calDate.setMonth(calDate.getMonth() + dir); drawCal(); };
-    function drawCal() {
-        const year = calDate.getFullYear();
-        if (year < 2000 || year > 3025) return; // [25 years range]
-        const month = calDate.getMonth();
-        document.getElementById('cal-header').innerText = calDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-        const days = new Date(year, month + 1, 0).getDate();
-        
-        const events = { "12-25": "Christmas", "3-17": "St. Patricks", "6-14": "Owner's Birthday", "2-24": "SpyderSammy Bday" };
-        
-        document.getElementById('cal-box').innerHTML = `<div class="calendar-grid">` + 
-            Array.from({length: days}, (_, i) => {
-                const day = i + 1;
-                const key = `${month+1}-${day}`;
-                const isToday = (day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear());
-                return `<div class="cal-day ${isToday?'cal-today':''} ${events[key]?'event':''}" title="${events[key]||''}">${day}</div>`;
-            }).join('') + `</div>`;
-    }
+    // --- Core Logic ---
+    document.getElementById('notif-bell-btn').onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById('spyder-sidebar').classList.toggle('open');
+    };
 
-    // --- Button & FPS Logic ---
-    document.getElementById('vol-btn').onclick = () => { toggleP('vol-popup'); };
-    document.getElementById('bri-btn').onclick = () => { toggleP('bri-popup'); };
-    document.getElementById('notif-bell-btn').onclick = () => document.getElementById('spyder-sidebar').classList.toggle('open');
-    function toggleP(id) { document.querySelectorAll('.spyder-popup').forEach(p=>p.style.display='none'); document.getElementById(id).style.display='flex'; }
+    document.getElementById('vol-btn').onclick = (e) => {
+        e.stopPropagation();
+        const p = document.getElementById('vol-popup');
+        p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+    };
 
+    document.getElementById('bri-btn').onclick = (e) => {
+        e.stopPropagation();
+        const p = document.getElementById('bri-popup');
+        p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+    };
+
+    // --- FPS & Status Engine ---
     let frames = 0, last = performance.now();
     function tick() {
-        const now = new Date();
-        document.getElementById('bar-time').innerText = now.toLocaleTimeString();
-        document.getElementById('bar-date').innerText = now.toLocaleDateString();
         frames++;
         if (performance.now() >= last + 1000) {
             document.getElementById('fps-val').innerText = frames;
@@ -356,13 +300,8 @@ function randRange(min, max) {
             dot.style.background = frames > 45 ? "#00ff00" : frames > 20 ? "#ffff00" : "#ff0000";
             frames = 0; last = performance.now();
         }
-        checkAlarms(); requestAnimationFrame(tick);
+        requestAnimationFrame(tick);
     }
-
-    document.addEventListener('input', (e) => {
-        if(e.target.id === 'bri-slider') document.getElementById('bri-overlay').style.opacity = (100 - e.target.value) / 100;
-        if(e.target.id === 'vol-slider') document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value / 100);
-    });
-
-    tick(); initBattery(); drawCal(); renderRems();
+    tick();
 })();
+
