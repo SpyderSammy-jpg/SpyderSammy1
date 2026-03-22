@@ -273,8 +273,10 @@ function randRange(min, max) {
     const festivals = {
         "1-1": { name: "New Year's Day", greet: "Happy New Year!" },
         "2-24": { name: "SpyderSammy's Birthday", greet: "Happy Birthday SpyderSammy!" },
+        "3-3": { name: "Holi", greet: "Happy Holi!" },
         "3-17": { name: "St. Patrick's Day", greet: "Happy St. Patrick's Day!" },
         "3-19": { name: "Eid al-Fitr", greet: "Eid Mubarak!" },
+        "3-20": { name: "Eid al-Fitr", greet: "Eid Mubarak!" },
         "4-3": { name: "Good Friday", greet: "Have a Blessed Good Friday!" },
         "4-5": { name: "Easter", greet: "Happy Easter!" },
         "6-14": { name: "Owner's Birthday", greet: "Happy Birthday Owner!" },
@@ -294,10 +296,7 @@ function randRange(min, max) {
     // --- Network Logic ---
     document.getElementById('wifi-btn').onclick = () => {
         const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        let msg = `Status: ${navigator.onLine ? 'Online' : 'Offline'}\n`;
-        msg += `Speed: ${conn?.downlink || '---'} Mbps\n`;
-        msg += `Location: America/New Jersey/Jersey City/07302`;
-        alert(msg);
+        alert(`Status: ${navigator.onLine ? 'Online' : 'Offline'}\nSpeed: ${conn?.downlink || '---'} Mbps\nLocation: America/New Jersey/Jersey City/07302`);
     };
 
     // --- Battery Logic ---
@@ -326,7 +325,7 @@ function randRange(min, max) {
         const timeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         rems.forEach((r, i) => {
             if(r.time === timeKey && !r.done) {
-                if(confirm("REMINDER: " + r.title + "\n\nClick 'Continue' to delete.")) {
+                if(confirm("REMINDER: " + r.title + "\\n\\nClick 'Continue' to delete.")) {
                     rems.splice(i, 1);
                     localStorage.setItem('spyderRems', JSON.stringify(rems));
                     renderRems();
@@ -351,16 +350,16 @@ function randRange(min, max) {
         const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
         const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
         
-        let html = `<div class="calendar-grid">`;
-        weekDays.forEach(w => html += `<div class="cal-weekday">${w}</div>`);
+        let html = \`<div class="calendar-grid">\`;
+        weekDays.forEach(w => html += \`<div class="cal-weekday">\${w}</div>\`);
         for (let i = 1; i <= days; i++) {
-            const k = `${d.getMonth()+1}-${i}`;
+            const k = \`\${d.getMonth()+1}-\${i}\`;
             const isT = (i === new Date().getDate() && d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear());
             const hasEvent = festivals[k];
-            html += `<div class="cal-day ${isT ? 'cal-today' : ''} ${hasEvent ? 'cal-event' : ''}" 
-                     onclick="${hasEvent ? `alert('Event: ${hasEvent.name}')` : ''}">${i}</div>`;
+            html += \`<div class="cal-day \${isT ? 'cal-today' : ''} \${hasEvent ? 'cal-event' : ''}" 
+                     onclick="\${hasEvent ? \`alert('Event: \${hasEvent.name}')\` : ''}">\${i}</div>\`;
         }
-        html += `</div>`;
+        html += \`</div>\`;
         document.getElementById('cal-box').innerHTML = html;
     }
 
@@ -375,7 +374,7 @@ function randRange(min, max) {
     };
 
     window.delRem = (id) => { if(confirm("Delete?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
-    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
+    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => \`<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(\${r.id})"> \${r.title}</span><span style="color:red;">\${r.time}</span></div>\`).join('') || "None"; }
     
     document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth()-1); drawCal(); };
     document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth()+1); drawCal(); };
