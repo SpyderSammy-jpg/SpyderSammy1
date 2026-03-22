@@ -217,108 +217,41 @@ function getRandomUrl() {
 function randRange(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
-(function() {
-    const ui = `
-    <div id="spyder-bar">
-        <div class="status-left" style="display:flex; align-items:center; gap:10px;">
-            <div id="fps-dot" style="width:12px; height:12px; border-radius:50%; border:2px solid #222;"></div>
-            <div style="display:flex; flex-direction:column; line-height:1.1;">
-                <span id="online-status">Online</span>
-                <span style="font-size:10px; color:#ffff00;">FPS: <span id="fps-val">0</span></span>
-            </div>
-        </div>
-        <div class="task-right">
-            <span id="wifi-btn" style="cursor:pointer;">📶</span>
-            <span id="vol-btn" style="cursor:pointer;">🔊</span>
-            <span id="bri-btn" style="cursor:pointer;">☀️</span>
-            <div id="battery-btn" style="cursor:pointer; width:24px; height:12px; border:1.5px solid #fff; position:relative;">
-                <div id="bat-fill" style="height:100%; background:#00ff00; width:0%;"></div>
-                <div id="bat-bolt" style="position:absolute; top:-3px; left:6px; color:#ffff00; font-size:14px; display:none;">⚡</div>
-            </div>
-            <div style="text-align:right; font-size:11px; cursor:pointer;" id="clock-btn">
-                <div id="bar-time">00:00:00</div>
-                <div id="bar-date">0/0/0000</div>
-            </div>
-            <span id="notif-bell-btn" style="font-size:18px; cursor:pointer;">🔔</span>
-        </div>
-    </div>
-    <div id="vol-popup" class="spyder-popup" style="display:none;"><span>VOL</span><input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100"></div>
-    <div id="bri-popup" class="spyder-popup" style="display:none;"><span>BRI</span><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100"></div>
-    <div id="spyder-sidebar">
-        <h2 class="red-text">Reminders <button id="add-rem-btn" style="background:red; border:none; cursor:pointer; color:black; font-weight:bold;">+</button></h2>
-        <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:40px; font-size:13px;"></div>
-        <h2 class="red-text">Countdown to School End</h2>
-        <div id="school-countdown" style="font-size:16px; text-align:center; color:#ffff00; font-family:monospace; padding:10px; border:1px solid #222;"></div>
-        <h2 class="red-text">SpyderCalendar</h2>
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <button id="prev-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;"><</button>
-            <span id="cal-header"></span>
-            <button id="next-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;">></button>
-        </div>
-        <div id="cal-box"></div>
-    </div>
-    <div id="bri-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; pointer-events:none; z-index:10000; opacity:0;"></div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', ui);
-
-    let calDate = new Date();
-    let rems = JSON.parse(localStorage.getItem('spyderRems') || '[]');
-
-    const festivals = {
-        "2-24": { name: "SpyderSammy's Birthday", greet: "Happy Birthday SpyderSammy!" },
-        "3-17": { name: "St. Patrick's Day", greet: "Happy St. Patrick's Day!" },
-        "3-19": { name: "Eid al-Fitr", greet: "Eid Mubarak!" },
-        "3-20": { name: "Eid al-Fitr", greet: "Eid Mubarak!" },
-        "6-14": { name: "Owner's Birthday", greet: "Happy Birthday Owner!" },
-        "12-25": { name: "Christmas Day", greet: "Merry Christmas!" }
-    };
-
-    function checkGreetings() {
-        const key = `${new Date().getMonth() + 1}-${new Date().getDate()}`;
-        if (festivals[key] && !sessionStorage.getItem('greeted_' + key)) {
-            alert(festivals[key].greet);
-            sessionStorage.setItem('greeted_' + key, 'true');
-        }
-    }
-
-    document.getElementById('wifi-btn').onclick = () => {
-        alert(`Status: ${navigator.onLine ? 'Online' : 'Offline'}\nSpeed: ${navigator.connection?.downlink || '---'} Mbps\nLocation: America/New Jersey/Jersey City/07302`);
-    };
-
-    if (navigator.getBattery) {
-        navigator.getBattery().then(bat => {
-            const up = () => {
-                document.getElementById('bat-fill').style.width = (bat.level * 100) + "%";
-                document.getElementById('bat-bolt').style.display = bat.charging ? "block" : "none";
-            };
-            document.getElementById('battery-btn').onclick = () => alert(`Battery: ${Math.round(bat.level*100)}%\nCharging: ${bat.charging ? 'Yes' : 'No'}`);
-            bat.onlevelchange = up; bat.onchargingchange = up; up();
-        });
-    }
-
+    // --- Optimized Core Timer Engine ---
     let frames = 0, last = performance.now();
     function tick() {
         const now = new Date();
+        
+        // 1. Update Clock Display
         document.getElementById('bar-time').innerText = now.toLocaleTimeString();
         document.getElementById('bar-date').innerText = now.toLocaleDateString();
 
+        // 2. High-Precision School Countdown
         const diff = new Date("2026-06-19T00:00:00") - now;
         const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
         document.getElementById('school-countdown').innerText = `${d}d ${h}h ${m}m ${s}s`;
 
-        const timeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        // 3. FIXED REMINDER LOGIC
+        // Converts current time to "HH:MM" format (e.g., "13:05")
+        const currentTimeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        
         rems.forEach((r, i) => {
-            if(r.time === timeKey && !r.done) {
-                if(confirm("REMINDER: " + r.title + "\n\nClick 'Continue' to delete.")) {
-                    rems.splice(i, 1);
-                    localStorage.setItem('spyderRems', JSON.stringify(rems));
-                    renderRems();
-                }
-                r.done = true;
+            // Match the time exactly
+            if(r.time === currentTimeKey && !r.done) {
+                r.done = true; // Mark as done immediately so it only fires once
+                
+                // Trigger the Notification
+                setTimeout(() => {
+                    if(confirm("🔔 SPYDER REMINDER: " + r.title + "\n\nClick 'OK' to delete this reminder.")) {
+                        rems.splice(i, 1); // Delete from array
+                        localStorage.setItem('spyderRems', JSON.stringify(rems)); // Save changes
+                        renderRems(); // Update sidebar list
+                    }
+                }, 100);
             }
         });
 
+        // 4. FPS Engine
         frames++;
         if (performance.now() >= last + 1000) {
             document.getElementById('fps-val').innerText = frames;
@@ -327,43 +260,3 @@ function randRange(min, max) {
         }
         requestAnimationFrame(tick);
     }
-
-    function drawCal() {
-        const d = calDate;
-        document.getElementById('cal-header').innerText = d.toLocaleString('default', { month: 'long', year: 'numeric' });
-        const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-        let html = `<div class="calendar-grid">`;
-        weekDays.forEach(w => html += `<div class="cal-weekday">${w}</div>`);
-        for (let i = 1; i <= days; i++) {
-            const k = `${d.getMonth()+1}-${i}`;
-            const isT = (i === new Date().getDate() && d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear());
-            const hasEvent = festivals[k];
-            html += `<div class="cal-day ${isT ? 'cal-today' : ''} ${hasEvent ? 'cal-event' : ''}" 
-                     onclick="${hasEvent ? `alert('Event: ${hasEvent.name}')` : ''}">${i}</div>`;
-        }
-        html += `</div>`;
-        document.getElementById('cal-box').innerHTML = html;
-    }
-
-    document.getElementById('notif-bell-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('spyder-sidebar').classList.toggle('open'); };
-    document.getElementById('vol-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('vol-popup').style.display='flex'; };
-    document.getElementById('bri-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('bri-popup').style.display='flex'; };
-    document.getElementById('add-rem-btn').onclick = () => {
-        const title = prompt("Title:"), time = prompt("Time (HH:MM):");
-        if(title && time) { rems.push({title, time, id:Date.now(), done:false}); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }
-    };
-
-    window.delRem = (id) => { if(confirm("Delete?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
-    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
-    document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth()-1); drawCal(); };
-    document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth()+1); drawCal(); };
-    window.onclick = (e) => { 
-        if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) document.querySelectorAll('.spyder-popup').forEach(p=>p.style.display='none');
-        if(!e.target.closest('#spyder-sidebar') && e.target.id !== 'notif-bell-btn') document.getElementById('spyder-sidebar').classList.remove('open');
-    };
-    document.getElementById('bri-slider').oninput = (e) => document.getElementById('bri-overlay').style.opacity = (100-e.target.value)/100;
-    document.getElementById('vol-slider').oninput = (e) => document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value/100);
-
-    tick(); drawCal(); renderRems(); checkGreetings();
-})();
