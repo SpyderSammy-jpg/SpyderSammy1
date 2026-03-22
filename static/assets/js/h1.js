@@ -579,11 +579,3 @@ function randRange(min, max) {
         };
     });
 })();
-(function() {
-    const extendedTools = `
-    <!-- Add to your existing tools menu -->
-    <button class="tool-btn" onclick="createNote()">SpyderNote (Sticky)</button>
-    <button class="tool-btn" onclick="openSTool('vault')">SpyderVault</button>
-    <button class="tool-btn" onclick="openSTool('trans')">SpyderTranslate</button>
-    <button class="tool-btn" onclick="openSTool('weather')">SpyderWeather</button>
-    <button class="tool-btn" onclick="openSTool('media')">SpyderMedia</button>
