@@ -252,7 +252,7 @@ function randRange(min, max) {
         <h2 class="red-text">National Day Fact</h2>
         <div id="nat-fact" style="padding:10px; border:1px solid #222; font-size:12px; color:#ffff00;">None</div>
         <h2 class="red-text">Countdown to School End</h2>
-        <div id="school-countdown" style="font-size:18px; text-align:center; color:#ffff00;"></div>
+        <div id="school-countdown" style="font-size:16px; text-align:center; color:#ffff00; font-family:monospace; padding:10px; border:1px solid #222;">00d 00h 00m 00s</div>
         <h2 class="red-text">SpyderCalendar</h2>
         <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
             <button id="prev-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;"><</button>
@@ -269,7 +269,7 @@ function randRange(min, max) {
     let calDate = new Date();
     let rems = JSON.parse(localStorage.getItem('spyderRems') || '[]');
 
-    // --- Battery Logic ---
+    // --- Battery Fixed Logic ---
     if (navigator.getBattery) {
         navigator.getBattery().then(bat => {
             const update = () => {
@@ -277,21 +277,42 @@ function randRange(min, max) {
                 document.getElementById('bat-bolt').style.display = bat.charging ? "block" : "none";
             };
             bat.onlevelchange = update; bat.onchargingchange = update; update();
+            
+            // Fixed: Battery click alert
+            document.getElementById('battery-btn').onclick = (e) => {
+                e.stopPropagation();
+                alert(`Battery: ${Math.round(bat.level * 100)}%\nStatus: ${bat.charging ? "Charging ⚡" : "Discharging"}`);
+            };
         });
     }
 
     // --- Internet Logic ---
-    document.getElementById('wifi-btn').onclick = () => {
+    document.getElementById('wifi-btn').onclick = (e) => {
+        e.stopPropagation();
         const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        alert(`Network: ${conn?.effectiveType?.toUpperCase() || 'WiFi'}_Spyder_Secure\nStatus: Online`);
+        alert(`Network: ${conn?.effectiveType?.toUpperCase() || 'WiFi'}_Spyder_Secure\nStatus: ${navigator.onLine ? 'Online' : 'Offline'}`);
     };
 
-    // --- Core Timer (Clock, Alarms, FPS) ---
+    // --- Core Timer (Clock, Alarms, FPS, Countdown) ---
     let frames = 0, last = performance.now();
     function tick() {
         const now = new Date();
         document.getElementById('bar-time').innerText = now.toLocaleTimeString();
         document.getElementById('bar-date').innerText = now.toLocaleDateString();
+
+        // High Precision School Countdown
+        const target = new Date("2026-06-19T00:00:00");
+        const diff = target - now;
+        if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('school-countdown').innerText = 
+                `${days}d ${hours.toString().padStart(2,'0')}h ${mins.toString().padStart(2,'0')}m ${secs.toString().padStart(2,'0')}s`;
+        } else {
+            document.getElementById('school-countdown').innerText = "School's Out!";
+        }
 
         // Check Alarms
         const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
@@ -302,7 +323,7 @@ function randRange(min, max) {
             }
         });
 
-        // FPS
+        // FPS Engine
         frames++;
         if (performance.now() >= last + 1000) {
             document.getElementById('fps-val').innerText = frames;
@@ -313,12 +334,12 @@ function randRange(min, max) {
         requestAnimationFrame(tick);
     }
 
-    // --- Calendar & Holidays ---
+    // --- Calendar System ---
     function drawCal() {
         const d = calDate;
         document.getElementById('cal-header').innerText = d.toLocaleString('default', { month: 'long', year: 'numeric' });
         const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        const events = { "12-25": "Christmas", "6-14": "Owner Bday", "2-24": "SpyderSammy Bday" };
+        const events = { "12-25": "Christmas", "6-14": "Owner Bday", "2-24": "SpyderSammy Bday", "3-17": "St. Patricks" };
         
         document.getElementById('cal-box').innerHTML = `<div class="calendar-grid">` + 
             Array.from({length: days}, (_, i) => {
@@ -329,25 +350,61 @@ function randRange(min, max) {
             }).join('') + `</div>`;
     }
 
-    // --- UI Listeners ---
-    document.getElementById('notif-bell-btn').onclick = () => document.getElementById('spyder-sidebar').classList.toggle('open');
-    document.getElementById('vol-btn').onclick = () => document.getElementById('vol-popup').style.display = 'flex';
-    document.getElementById('bri-btn').onclick = () => document.getElementById('bri-popup').style.display = 'flex';
+    // --- Fixed Button Logic ---
+    document.getElementById('notif-bell-btn').onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById('spyder-sidebar').classList.toggle('open');
+    };
+
+    document.getElementById('vol-btn').onclick = (e) => {
+        e.stopPropagation();
+        const p = document.getElementById('vol-popup');
+        const state = p.style.display;
+        document.querySelectorAll('.spyder-popup').forEach(x => x.style.display = 'none');
+        p.style.display = (state === 'flex') ? 'none' : 'flex';
+    };
+
+    document.getElementById('bri-btn').onclick = (e) => {
+        e.stopPropagation();
+        const p = document.getElementById('bri-popup');
+        const state = p.style.display;
+        document.querySelectorAll('.spyder-popup').forEach(x => x.style.display = 'none');
+        p.style.display = (state === 'flex') ? 'none' : 'flex';
+    };
 
     document.getElementById('add-rem-btn').onclick = () => {
         const title = prompt("Reminder Title:");
         const time = prompt("Time (HH:MM):", "12:00");
-        if(title && time) { rems.push({title, time, id: Date.now(), done: false}); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }
+        if(title && time) { 
+            rems.push({title, time, id: Date.now(), done: false}); 
+            localStorage.setItem('spyderRems', JSON.stringify(rems)); 
+            renderRems(); 
+        }
     };
 
     window.delRem = (id) => { if(confirm("Delete reminder?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
-    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
+    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(${r.id})"> ${r.title}</span><span style="color:red;">${r.time}</span></div>`).join('') || "None"; }
 
     document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth() - 1); drawCal(); };
     document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth() + 1); drawCal(); };
 
-    // Close popups on click outside
-    window.onclick = (e) => { if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) document.querySelectorAll('.spyder-popup').forEach(p => p.style.display = 'none'); };
+    // --- Click Outside to Close Sliders/Sidebar ---
+    window.onclick = (e) => { 
+        if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) {
+            document.querySelectorAll('.spyder-popup').forEach(p => p.style.display = 'none');
+        }
+        if(!e.target.closest('#spyder-sidebar') && e.target.id !== 'notif-bell-btn') {
+            document.getElementById('spyder-sidebar').classList.remove('open');
+        }
+    };
+
+    // --- Slider Functional Logic ---
+    document.getElementById('bri-slider').oninput = (e) => {
+        document.getElementById('bri-overlay').style.opacity = (100 - e.target.value) / 100;
+    };
+    document.getElementById('vol-slider').oninput = (e) => {
+        document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value / 100);
+    };
 
     tick(); drawCal(); renderRems();
 })();
