@@ -191,3 +191,35 @@ html, body, #particles-js, .main, .center, .container {
 }
 .camera-shutter.recording { background: #ff0000; animation: rec-pulse 1s infinite; }
 @keyframes rec-pulse { 50% { opacity: 0.5; } }
+/* --- SpyderTools UI Refinements --- */
+#calc-display {
+    width: calc(100% - 20px); 
+    height: 45px; /* Shorter Screen */
+    background: #000; 
+    color: #ff0000; 
+    border: 1px solid #ff0000; 
+    text-align: right; 
+    margin: 10px; 
+    font-size: 22px; /* Adjusted font for shorter height */
+    padding: 5px 10px; 
+    font-family: 'Courier New', monospace;
+    box-sizing: border-box;
+}
+
+.calc-grid { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 8px; 
+    padding: 0 10px 10px 10px; 
+}
+
+.calc-btn { 
+    background: #1a1a1a; 
+    border: 1px solid #ff0000; 
+    color: #fff; 
+    padding: 12px; 
+    cursor: pointer; 
+    border-radius: 4px; 
+    font-weight: bold;
+}
+.calc-btn:hover { background: #ff0000; color: #000; }
