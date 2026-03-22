@@ -375,49 +375,7 @@ function randRange(min, max) {
     tick(); drawCal(); renderRems(); checkGreetings();
 })();
 (function() {
-    const mainUI = `
-    <div id="spyder-bar">
-        <div class="status-left" style="display:flex; align-items:center; gap:10px;">
-            <div id="fps-dot" style="width:12px; height:12px; border-radius:50%; border:2px solid #222;"></div>
-            <div style="display:flex; flex-direction:column; line-height:1.1;">
-                <span id="online-status">Online</span>
-                <span style="font-size:10px; color:#ffff00;">FPS: <span id="fps-val">0</span></span>
-            </div>
-        </div>
-        <div class="task-right">
-            <span id="wifi-btn" style="cursor:pointer;">📶</span>
-            <span id="vol-btn" style="cursor:pointer;">🔊</span>
-            <span id="bri-btn" style="cursor:pointer;">☀️</span>
-            <div id="battery-btn" style="cursor:pointer; width:24px; height:12px; border:1.5px solid #fff; position:relative;">
-                <div id="bat-fill" style="height:100%; background:#00ff00; width:0%;"></div>
-                <div id="bat-bolt" style="position:absolute; top:-3px; left:6px; color:#ffff00; font-size:14px; display:none;">⚡</div>
-            </div>
-            <div style="text-align:right; font-size:11px; cursor:pointer;" id="clock-btn">
-                <div id="bar-time">00:00:00</div>
-                <div id="bar-date">0/0/0000</div>
-            </div>
-            <span id="notif-bell-btn" style="font-size:18px; cursor:pointer;">🔔</span>
-        </div>
-    </div>
-
-    <div id="vol-popup" class="spyder-popup" style="display:none; position:fixed; bottom:55px; right:45px; width:80px; background:#050505; border:2px solid #ff0000; border-radius:8px; padding:15px; z-index:10003; flex-direction:column; align-items:center;"><span>VOL</span><input type="range" class="thermometer-slider" id="vol-slider" min="0" max="100" style="-webkit-appearance:slider-vertical; height:130px; accent-color:red;"></div>
-    <div id="bri-popup" class="spyder-popup" style="display:none; position:fixed; bottom:55px; right:45px; width:80px; background:#050505; border:2px solid #ff0000; border-radius:8px; padding:15px; z-index:10003; flex-direction:column; align-items:center;"><span>BRI</span><input type="range" class="thermometer-slider" id="bri-slider" min="10" max="100" style="-webkit-appearance:slider-vertical; height:130px; accent-color:red;"></div>
-
-    <div id="spyder-sidebar">
-        <h2 class="red-text">Reminders <button id="add-rem-btn" style="background:red; border:none; cursor:pointer; color:black; font-weight:bold;">+</button></h2>
-        <div id="rem-list" style="border:1px solid #222; padding:10px; min-height:40px; font-size:13px;"></div>
-        <h2 class="red-text">Countdown to School End</h2>
-        <div id="school-countdown" style="font-size:16px; text-align:center; color:#ffff00; font-family:monospace; padding:10px; border:1px solid #222;"></div>
-        <h2 class="red-text">SpyderCalendar</h2>
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <button id="prev-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;"><</button>
-            <span id="cal-header"></span>
-            <button id="next-mo" style="background:none; color:red; border:1px solid #333; cursor:pointer;">></button>
-        </div>
-        <div id="cal-box"></div>
-    </div>
-
-    <!-- SPYDER TOOLS -->
+    const toolHTML = `
     <div id="spyder-tools-toggle">🛠️</div>
     <div id="spyder-tools-menu">
         <button class="tool-btn" onclick="openSTool('calc')">SpyderCalculator</button>
@@ -427,75 +385,198 @@ function randRange(min, max) {
         <button class="tool-btn" onclick="openSTool('chat')">SpyderChat</button>
     </div>
 
-    <div id="win-calc" class="spyder-window" style="bottom:60px; left:30px;"><div class="window-header"><span>Calculator</span><span class="close-win" onclick="closeSTool('calc')">X</span></div><div class="window-body" style="padding:0;"><input type="text" id="calc-display" readonly><div class="calc-grid">${['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'].map(k => `<button class="calc-btn" onclick="calcDo('${k}')">${k}</button>`).join('')}</div></div></div>
-    <div id="win-timer" class="spyder-window" style="bottom:60px; left:30px;"><div class="window-header"><span>Timer</span><span class="close-win" onclick="closeSTool('timer')">X</span></div><div class="window-body" style="text-align:center;"><div id="timer-circle"><span id="timer-txt">00:00</span></div><button onclick="runSpyderTimer()" style="background:red; color:white; border:none; padding:10px 20px; cursor:pointer; font-weight:bold; margin-top:10px;">SET TIMER</button></div></div>
-    <div id="win-sw" class="spyder-window" style="top:50px; left:50px;"><div class="window-header"><span>Stopwatch</span><span class="close-win" onclick="closeSTool('sw')">X</span></div><div class="window-body" style="text-align:center;"><div id="sw-val" style="font-size:36px; font-family:monospace; margin-bottom:15px;">00:00:00</div><button id="sw-btn" onclick="toggleSW()" style="background:green; color:white; border:none; padding:10px 25px; cursor:pointer;">Start</button><button onclick="resetSW()" style="background:gray; color:white; border:none; padding:10px 25px; cursor:pointer;">Reset</button></div></div>
-    <div id="win-snip" class="spyder-window" style="top:50%; left:50%; transform:translate(-50%,-50%); width:300px;"><div class="window-header"><span>Camera</span><span class="close-win" onclick="closeSTool('snip')">X</span></div><div class="window-body camera-ui"><div class="camera-mode-toggle"><span id="m-photo" class="mode-txt active" onclick="setCamMode('p')">PHOTO</span><span id="m-video" class="mode-txt" onclick="setCamMode('v')">VIDEO</span></div><div id="camera-shutter" class="camera-shutter" onclick="triggerCamera()"></div><button class="tool-btn" onclick="openSTool('gal')" style="width:100%; text-align:center;">📂 Gallery</button></div></div>
-    <div id="win-chat" class="spyder-window" style="top:100px; left:100px; width:450px; height:550px;"><div class="window-header"><span>Chat</span><span class="close-win" onclick="closeSTool('chat')">X</span></div><div class="window-body" style="padding:0; height:500px;"><iframe id="chat-frame" src="" style="width:100%; height:100%; border:none; background:#fff;"></iframe></div></div>
-    <div id="win-gal" class="spyder-window" style="top:50px; right:50px; width:350px;"><div class="window-header"><span>Gallery</span><span class="close-win" onclick="closeSTool('gal')">X</span></div><div class="window-body" id="gal-list" style="max-height:400px; overflow-y:auto;"></div></div>
-    <div id="bri-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; pointer-events:none; z-index:10000; opacity:0;"></div>
+    <!-- Window: Calculator -->
+    <div id="win-calc" class="spyder-window" style="bottom:60px; left:30px; width:300px;">
+        <div class="window-header"><span>SpyderCalculator</span><span class="close-win" onclick="closeSTool('calc')">X</span></div>
+        <div class="window-body" style="padding:0;">
+            <input type="text" id="calc-display" readonly>
+            <div class="calc-grid">
+                ${['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'].map(k => `<button class="calc-btn" onclick="calcDo('${k}')">${k}</button>`).join('')}
+            </div>
+        </div>
+    </div>
+
+    <!-- Window: Timer -->
+    <div id="win-timer" class="spyder-window" style="bottom:60px; left:30px;">
+        <div class="window-header"><span>SpyderTimer</span><span class="close-win" onclick="closeSTool('timer')">X</span></div>
+        <div class="window-body" style="text-align:center;">
+            <div id="timer-circle"><span id="timer-txt">00:00</span></div>
+            <button onclick="runSpyderTimer()" style="background:red; color:white; border:none; padding:10px 20px; cursor:pointer; font-weight:bold; margin-top:10px;">SET TIMER</button>
+        </div>
+    </div>
+
+    <!-- Window: Stopwatch -->
+    <div id="win-sw" class="spyder-window" style="top:50px; left:50px;">
+        <div class="window-header"><span>SpyderStopwatch</span><span class="close-win" onclick="closeSTool('sw')">X</span></div>
+        <div class="window-body" style="text-align:center;">
+            <div id="sw-display" style="font-size:36px; font-family:monospace; margin-bottom:15px;">00:00:00</div>
+            <button id="sw-btn" onclick="toggleSW()" style="background:green; color:white; border:none; padding:10px 25px; cursor:pointer;">Start</button>
+            <button onclick="resetSW()" style="background:gray; color:white; border:none; padding:10px 25px; cursor:pointer;">Reset</button>
+        </div>
+    </div>
+
+    <!-- Window: Camera (Screenshot/Video) -->
+    <div id="win-snip" class="spyder-window" style="top:50%; left:50%; transform:translate(-50%,-50%); width:300px;">
+        <div class="window-header"><span>SpyderCamera</span><span class="close-win" onclick="closeSTool('snip')">X</span></div>
+        <div class="window-body camera-ui">
+            <div class="camera-mode-toggle">
+                <span id="m-photo" class="mode-txt active" onclick="setCamMode('p')">PHOTO</span>
+                <span id="m-video" class="mode-txt" onclick="setCamMode('v')">VIDEO</span>
+            </div>
+            <div id="camera-shutter" class="camera-shutter" onclick="triggerCamera()"></div>
+            <p style="font-size:10px; color:#666;">Choose "This Tab" for screen captures</p>
+            <button class="tool-btn" onclick="openSTool('gal')" style="width:100%; text-align:center;">📂 View Gallery</button>
+        </div>
+    </div>
+
+    <!-- Window: Chat -->
+    <div id="win-chat" class="spyder-window" style="top:100px; left:100px; width:450px; height:550px;">
+        <div class="window-header"><span>SpyderChat</span><span class="close-win" onclick="closeSTool('chat')">X</span></div>
+        <div class="window-body" style="padding:0; height:500px;">
+            <iframe id="chat-frame" src="" style="width:100%; height:100%; border:none; background:#fff;"></iframe>
+        </div>
+    </div>
+
+    <!-- Window: Gallery -->
+    <div id="win-gal" class="spyder-window" style="top:50px; right:50px; width:350px;">
+        <div class="window-header"><span>SpyderGallery</span><span class="close-win" onclick="closeSTool('gal')">X</span></div>
+        <div class="window-body" id="gal-list" style="max-height:400px; overflow-y:auto;">No Captures.</div>
+    </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', mainUI);
+    document.body.insertAdjacentHTML('beforeend', toolHTML);
 
-    let calDate = new Date();
-    let rems = JSON.parse(localStorage.getItem('spyderRems') || '[]');
-    const festivals = { "2-24": { name: "SpyderSammy's Birthday", greet: "Happy Birthday SpyderSammy!" }, "3-17": { name: "St. Patrick's Day", greet: "Happy St. Patrick's Day!" }, "3-19": { name: "Eid al-Fitr", greet: "Eid Mubarak!" }, "3-20": { name: "Eid al-Fitr", greet: "Eid Mubarak!" }, "6-14": { name: "Owner's Birthday", greet: "Happy Birthday Owner!" }, "12-25": { name: "Christmas Day", greet: "Merry Christmas!" } };
+    // --- Core Tool Management ---
+    window.openSTool = (id) => {
+        if(id !== 'gal' && id !== 'snip') document.querySelectorAll('.spyder-window').forEach(w => w.style.display = 'none');
+        document.getElementById('win-' + id).style.display = 'flex';
+        if(id === 'chat') document.getElementById('chat-frame').src = "https://rumbletalk.com";
+        if(id === 'gal') loadSpyderGal();
+    };
+    window.closeSTool = (id) => {
+        document.getElementById('win-' + id).style.display = 'none';
+        if(id === 'chat') document.getElementById('chat-frame').src = "";
+    };
+    document.getElementById('spyder-tools-toggle').onclick = () => {
+        const m = document.getElementById('spyder-tools-menu');
+        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    };
 
-    // --- Core Engine ---
-    let frames = 0, last = performance.now();
-    function tick() {
-        const now = new Date();
-        document.getElementById('bar-time').innerText = now.toLocaleTimeString();
-        document.getElementById('bar-date').innerText = now.toLocaleDateString();
+    // --- Calculator Engine ---
+    window.calcDo = (v) => {
+        const d = document.getElementById('calc-display');
+        if(v === '=') try { d.value = eval(d.value); } catch(e) { d.value = "Error"; }
+        else if(v === 'C') d.value = '';
+        else d.value += v;
+    };
 
-        const diff = new Date("2026-06-19T00:00:00") - now;
-        const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-        document.getElementById('school-countdown').innerText = `${d}d ${h.toString().padStart(2,'0')}h ${m.toString().padStart(2,'0')}m ${s.toString().padStart(2,'0')}s`;
+    // --- Timer Engine ---
+    let ti;
+    window.runSpyderTimer = () => {
+        let s = prompt("Timer seconds:") || 0;
+        clearInterval(ti);
+        ti = setInterval(() => {
+            s--;
+            let min = Math.floor(s/60), sec = s%60;
+            document.getElementById('timer-txt').innerText = `${min}:${sec < 10 ? '0'+sec : sec}`;
+            if(s <= 0) { clearInterval(ti); alert("SpyderTimer: Time is up!"); }
+        }, 1000);
+    };
 
-        const timeKey = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        rems.forEach((r, i) => { if(r.time === timeKey && !r.fired) { r.fired = true; setTimeout(() => { if(confirm("REMINDER: " + r.title + "\\n\\nClick 'OK' to delete.")) { rems.splice(i, 1); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); } }, 10); } });
+    // --- Stopwatch Engine ---
+    let swI, swE = 0;
+    window.toggleSW = () => {
+        const b = document.getElementById('sw-btn');
+        if(b.innerText === "Start") {
+            b.innerText = "Stop"; b.style.background = "red";
+            let st = Date.now() - swE;
+            swI = setInterval(() => {
+                swE = Date.now() - st;
+                let ms = Math.floor((swE % 1000) / 10), s = Math.floor((swE / 1000) % 60), m = Math.floor(swE / 60000);
+                document.getElementById('sw-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}:${ms.toString().padStart(2,'0')}`;
+            }, 10);
+        } else {
+            b.innerText = "Start"; b.style.background = "green";
+            clearInterval(swI);
+        }
+    };
+    window.resetSW = () => { swE = 0; document.getElementById('sw-display').innerText = "00:00:00"; };
 
-        frames++; if (performance.now() >= last + 1000) { document.getElementById('fps-val').innerText = frames; document.getElementById('fps-dot').style.background = frames > 45 ? "#00ff00" : frames > 20 ? "#ffff00" : "#ff0000"; frames = 0; last = performance.now(); }
-        requestAnimationFrame(tick);
+    // --- Camera App Engine (Photo/Video + Audio) ---
+    let curMode = 'p', recorder, chunks = [];
+    window.setCamMode = (m) => {
+        curMode = m;
+        document.getElementById('m-photo').classList.toggle('active', m === 'p');
+        document.getElementById('m-video').classList.toggle('active', m === 'v');
+    };
+
+    window.triggerCamera = async () => {
+        if(curMode === 'p') {
+            try {
+                const stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" }, selfBrowserSurface: "include" });
+                const vid = document.createElement('video'); vid.srcObject = stream; await vid.play();
+                const canvas = document.createElement('canvas'); canvas.width = vid.videoWidth; canvas.height = vid.videoHeight;
+                canvas.getContext('2d').drawImage(vid, 0, 0);
+                saveToGal('img', canvas.toDataURL());
+                stream.getTracks().forEach(t => t.stop());
+                alert("Screenshot saved to Gallery!");
+            } catch(e) { console.error(e); }
+        } else {
+            const shutter = document.getElementById('camera-shutter');
+            if(shutter.classList.contains('recording')) {
+                recorder.stop(); shutter.classList.remove('recording');
+            } else {
+                try {
+                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    recorder = new MediaRecorder(stream);
+                    recorder.ondataavailable = e => chunks.push(e.data);
+                    recorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        saveToGal('vid', URL.createObjectURL(blob));
+                        chunks = []; stream.getTracks().forEach(t => t.stop());
+                        alert("Video recorded!");
+                    };
+                    recorder.start(); shutter.classList.add('recording');
+                } catch(e) { alert("Recording requires screen and audio permissions."); }
+            }
+        }
+    };
+
+    function saveToGal(type, data) {
+        let g = JSON.parse(localStorage.getItem('spyder_gal') || '[]');
+        g.push({ type, data, date: new Date().toLocaleString() });
+        localStorage.setItem('spyder_gal', JSON.stringify(g));
     }
 
-    // --- Tools Engine ---
-    window.openSTool = (id) => { if(id !== 'gal') document.querySelectorAll('.spyder-window').forEach(w => w.style.display = 'none'); document.getElementById('win-' + id).style.display = 'flex'; if(id === 'chat') document.getElementById('chat-frame').src = "https://rumbletalk.com"; if(id === 'gal') loadSpyderGal(); };
-    window.closeSTool = (id) => { document.getElementById('win-' + id).style.display = 'none'; if(id === 'chat') document.getElementById('chat-frame').src = ""; };
-    window.calcDo = (v) => { const d = document.getElementById('calc-display'); if(v === '=') try { d.value = eval(d.value); } catch(e) { d.value = "Error"; } else if(v === 'C') d.value = ''; else d.value += v; };
-    
-    let ti; window.runSpyderTimer = () => { let s = prompt("Timer seconds:") || 0; clearInterval(ti); ti = setInterval(() => { s--; let min = Math.floor(s/60), sec = s%60; document.getElementById('timer-txt').innerText = `${min}:${sec < 10 ? '0'+sec : sec}`; if(s <= 0) { clearInterval(ti); alert("SpyderTimer: Done!"); } }, 1000); };
-    let swI, swE = 0; window.toggleSW = () => { const b = document.getElementById('sw-btn'); if(b.innerText === "Start") { b.innerText = "Stop"; b.style.background = "red"; let st = Date.now() - swE; swI = setInterval(() => { swE = Date.now() - st; let ms = Math.floor((swE%1000)/10), s = Math.floor((swE/1000)%60), m = Math.floor(swE/60000); document.getElementById('sw-val').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}:${ms.toString().padStart(2,'0')}`; }, 10); } else { b.innerText = "Start"; b.style.background = "green"; clearInterval(swI); } };
-    window.resetSW = () => { swE = 0; document.getElementById('sw-val').innerText = "00:00:00"; };
+    window.downloadCapture = (data, type) => {
+        const a = document.createElement('a');
+        a.href = data;
+        a.download = `spyder_capture_${Date.now()}.${type === 'img' ? 'png' : 'webm'}`;
+        a.click();
+    };
 
-    let curM = 'p', rec, chunks = []; window.setCamMode = (m) => { curM = m; document.getElementById('m-photo').classList.toggle('active', m === 'p'); document.getElementById('m-video').classList.toggle('active', m === 'v'); };
-    window.triggerCamera = async () => { if(curM === 'p') { const stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" } }); const vid = document.createElement('video'); vid.srcObject = stream; await vid.play(); const canvas = document.createElement('canvas'); canvas.width = vid.videoWidth; canvas.height = vid.videoHeight; canvas.getContext('2d').drawImage(vid, 0, 0); saveToGal('img', canvas.toDataURL()); stream.getTracks().forEach(t => t.stop()); alert("Screenshot saved!"); } else { const sh = document.getElementById('camera-shutter'); if(sh.classList.contains('recording')) { rec.stop(); sh.classList.remove('recording'); } else { const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); rec = new MediaRecorder(stream); rec.ondataavailable = e => chunks.push(e.data); rec.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); saveToGal('vid', URL.createObjectURL(blob)); chunks = []; stream.getTracks().forEach(t => t.stop()); alert("Video recorded!"); }; rec.start(); sh.classList.add('recording'); } } };
-    function saveToGal(type, data) { let g = JSON.parse(localStorage.getItem('spyder_gal') || '[]'); g.push({ type, data, date: new Date().toLocaleString() }); localStorage.setItem('spyder_gal', JSON.stringify(g)); }
-    window.downloadCapture = (data, type) => { const a = document.createElement('a'); a.href = data; a.download = `spyder_capture_${Date.now()}.${type==='img'?'png':'webm'}`; a.click(); };
-    function loadSpyderGal() { const g = JSON.parse(localStorage.getItem('spyder_gal') || '[]'); document.getElementById('gal-list').innerHTML = g.length ? g.map(i => `<div class="gal-item"><small>${i.date}</small><br>${i.type==='img'?`<img src="${i.data}" style="width:100%;">`:`<button onclick="window.open('${i.data}')" style="width:100%; background:#222; border:1px solid red; color:#fff; cursor:pointer;">▶ Play Video</button>`}<button class="gal-dl-btn" onclick="downloadCapture('${i.data}', '${i.type}')">DOWNLOAD FILE</button></div>`).join('') : "Gallery is empty."; }
+    function loadSpyderGal() {
+        const g = JSON.parse(localStorage.getItem('spyder_gal') || '[]');
+        document.getElementById('gal-list').innerHTML = g.length ? g.map(i => `
+            <div class="gal-item">
+                <small>${i.date}</small><br>
+                ${i.type === 'img' ? `<img src="${i.data}" style="width:100%; margin-top:5px; border:1px solid #333;">` : 
+                `<button onclick="window.open('${i.data}')" style="width:100%; background:#222; border:1px solid red; color:#fff; cursor:pointer; padding:10px;">▶ Play Video</button>`}
+                <button class="gal-dl-btn" onclick="downloadCapture('${i.data}', '${i.type}')">DOWNLOAD FILE</button>
+            </div>
+        `).join('') : "Gallery is empty.";
+    }
 
-    // --- Taskbar Helpers ---
-    document.getElementById('wifi-btn').onclick = () => alert(`Status: ${navigator.onLine ? 'Online' : 'Offline'}\\nSpeed: ${navigator.connection?.downlink || '---'} Mbps\\nLocation: America/New Jersey/Jersey City/07302`);
-    if (navigator.getBattery) { navigator.getBattery().then(bat => { const up = () => { document.getElementById('bat-fill').style.width = (bat.level * 100) + "%"; document.getElementById('bat-bolt').style.display = bat.charging ? "block" : "none"; }; document.getElementById('battery-btn').onclick = () => alert(`Battery: \${Math.round(bat.level*100)}%\\nCharging: \${bat.charging ? 'Yes' : 'No'}`); bat.onlevelchange = up; bat.onchargingchange = up; up(); }); }
-    document.getElementById('notif-bell-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('spyder-sidebar').classList.toggle('open'); };
-    document.getElementById('vol-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('vol-popup').style.display='flex'; };
-    document.getElementById('bri-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('bri-popup').style.display='flex'; };
-    document.getElementById('add-rem-btn').onclick = () => { const title = prompt("Title:"), time = prompt("Time (HH:MM):"); if(title && time) { rems.push({title, time, id:Date.now(), fired:false}); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); } };
-    function renderRems() { document.getElementById('rem-list').innerHTML = rems.map(r => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><input type="checkbox" onchange="delRem(\${r.id})"> \${r.title}</span><span style="color:red;">\${r.time}</span></div>`).join('') || "None"; }
-    window.delRem = (id) => { if(confirm("Delete?")) { rems = rems.filter(r => r.id !== id); localStorage.setItem('spyderRems', JSON.stringify(rems)); renderRems(); }};
-    document.getElementById('prev-mo').onclick = () => { calDate.setMonth(calDate.getMonth()-1); drawCal(); };
-    document.getElementById('next-mo').onclick = () => { calDate.setMonth(calDate.getMonth()+1); drawCal(); };
-    function drawCal() { const d = calDate; document.getElementById('cal-header').innerText = d.toLocaleString('default', { month: 'long', year: 'numeric' }); const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']; let html = `<div class="calendar-grid">`; weekDays.forEach(w => html += `<div class="cal-weekday">\${w}</div>`); for (let i = 1; i <= days; i++) { const k = \`\${d.getMonth()+1}-\${i}\`; const isT = (i === new Date().getDate() && d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear()); const hasEvent = festivals[k]; html += `<div class="cal-day \${isT ? 'cal-today' : ''} \${hasEvent ? 'cal-event' : ''}" onclick="\${hasEvent ? \`alert('Event: \${hasEvent.name}')\` : ''}">\${i}</div>`; } html += `</div>`; document.getElementById('cal-box').innerHTML = html; }
-    
-    document.getElementById('spyder-tools-toggle').onclick = () => { const m = document.getElementById('spyder-tools-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
-    window.onclick = (e) => { if(!e.target.closest('.spyder-popup') && !e.target.closest('.task-btn')) document.querySelectorAll('.spyder-popup').forEach(p=>p.style.display='none'); if(!e.target.closest('#spyder-sidebar') && e.target.id !== 'notif-bell-btn') document.getElementById('spyder-sidebar').classList.remove('open'); };
-    document.getElementById('bri-slider').oninput = (e) => document.getElementById('bri-overlay').style.opacity = (100-e.target.value)/100;
-    document.getElementById('vol-slider').oninput = (e) => document.querySelectorAll('audio, video').forEach(v => v.volume = e.target.value/100);
-
-    document.querySelectorAll('.window-header').forEach(h => { h.onmousedown = (e) => { let w = h.parentElement; let ox = e.clientX - w.offsetLeft, oy = e.clientY - w.offsetTop; document.onmousemove = (e) => { w.style.left = (e.clientX - ox) + "px"; w.style.top = (e.clientY - oy) + "px"; w.style.bottom = "auto"; w.style.right = "auto"; }; document.onmouseup = () => document.onmousemove = null; }; });
-
-    tick(); drawCal(); renderRems();
-    const key = `${new Date().getMonth() + 1}-${new Date().getDate()}`;
-    if (festivals[key] && !sessionStorage.getItem('greeted_' + key)) { alert(festivals[key].greet); sessionStorage.setItem('greeted_' + key, 'true'); }
+    // --- Drag Logic ---
+    document.querySelectorAll('.window-header').forEach(h => {
+        h.onmousedown = (e) => {
+            let w = h.parentElement;
+            let ox = e.clientX - w.offsetLeft, oy = e.clientY - w.offsetTop;
+            document.onmousemove = (e) => {
+                w.style.left = (e.clientX - ox) + "px"; w.style.top = (e.clientY - oy) + "px";
+                w.style.bottom = "auto"; w.style.right = "auto";
+            };
+            document.onmouseup = () => document.onmousemove = null;
+        };
+    });
 })();
