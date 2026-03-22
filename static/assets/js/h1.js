@@ -381,8 +381,7 @@ function randRange(min, max) {
         <button class="tool-btn" onclick="openSTool('calc')">SpyderCalculator</button>
         <button class="tool-btn" onclick="openSTool('timer')">SpyderTimer</button>
         <button class="tool-btn" onclick="openSTool('sw')">SpyderStopwatch</button>
-        <button class="tool-btn" onclick="openSTool('snip')">SpyderScreenshot</button>
-        <button class="tool-btn" onclick="openSTool('chat')">SpyderChat</button>
+        <button class="tool-btn" onclick="openSTool('snip')">SpyderScreenshots</button>
     </div>
 
     <!-- Window: Calculator -->
@@ -415,32 +414,27 @@ function randRange(min, max) {
         </div>
     </div>
 
-    <!-- Window: Camera (Screenshot/Video) -->
+    <!-- Window: Screenshots -->
     <div id="win-snip" class="spyder-window" style="top:50%; left:50%; transform:translate(-50%,-50%); width:300px;">
-        <div class="window-header"><span>SpyderCamera</span><span class="close-win" onclick="closeSTool('snip')">X</span></div>
+        <div class="window-header"><span>SpyderScreenshots</span><span class="close-win" onclick="closeSTool('snip')">X</span></div>
         <div class="window-body camera-ui">
             <div class="camera-mode-toggle">
                 <span id="m-photo" class="mode-txt active" onclick="setCamMode('p')">PHOTO</span>
                 <span id="m-video" class="mode-txt" onclick="setCamMode('v')">VIDEO</span>
             </div>
             <div id="camera-shutter" class="camera-shutter" onclick="triggerCamera()"></div>
-            <p style="font-size:10px; color:#666;">Choose "This Tab" for screen captures</p>
+            <p style="font-size:10px; color:#666;">Select "This Tab" for internal captures</p>
             <button class="tool-btn" onclick="openSTool('gal')" style="width:100%; text-align:center;">📂 View Gallery</button>
-        </div>
-    </div>
-
-    <!-- Window: Chat -->
-    <div id="win-chat" class="spyder-window" style="top:100px; left:100px; width:450px; height:550px;">
-        <div class="window-header"><span>SpyderChat</span><span class="close-win" onclick="closeSTool('chat')">X</span></div>
-        <div class="window-body" style="padding:0; height:500px;">
-            <iframe id="chat-frame" src="" style="width:100%; height:100%; border:none; background:#fff;"></iframe>
         </div>
     </div>
 
     <!-- Window: Gallery -->
     <div id="win-gal" class="spyder-window" style="top:50px; right:50px; width:350px;">
         <div class="window-header"><span>SpyderGallery</span><span class="close-win" onclick="closeSTool('gal')">X</span></div>
-        <div class="window-body" id="gal-list" style="max-height:400px; overflow-y:auto;">No Captures.</div>
+        <div class="window-body" style="display:flex; flex-direction:column; max-height:500px;">
+            <div id="gal-list" style="overflow-y:auto; flex-grow:1;">No Captures.</div>
+            <button class="gal-clear-btn" onclick="clearSpyderGal()">CLEAR ALL GALLERY</button>
+        </div>
     </div>
     `;
 
@@ -450,13 +444,9 @@ function randRange(min, max) {
     window.openSTool = (id) => {
         if(id !== 'gal' && id !== 'snip') document.querySelectorAll('.spyder-window').forEach(w => w.style.display = 'none');
         document.getElementById('win-' + id).style.display = 'flex';
-        if(id === 'chat') document.getElementById('chat-frame').src = "https://rumbletalk.com";
         if(id === 'gal') loadSpyderGal();
     };
-    window.closeSTool = (id) => {
-        document.getElementById('win-' + id).style.display = 'none';
-        if(id === 'chat') document.getElementById('chat-frame').src = "";
-    };
+    window.closeSTool = (id) => document.getElementById('win-' + id).style.display = 'none';
     document.getElementById('spyder-tools-toggle').onclick = () => {
         const m = document.getElementById('spyder-tools-menu');
         m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
@@ -500,9 +490,9 @@ function randRange(min, max) {
             clearInterval(swI);
         }
     };
-    window.resetSW = () => { swE = 0; document.getElementById('sw-display').innerText = "00:00:00"; };
+    window.resetSW = () => { swE = 0; document.getElementById('sw-val').innerText = "00:00:00"; };
 
-    // --- Camera App Engine (Photo/Video + Audio) ---
+    // --- Screenshots App Engine ---
     let curMode = 'p', recorder, chunks = [];
     window.setCamMode = (m) => {
         curMode = m;
@@ -553,6 +543,13 @@ function randRange(min, max) {
         a.href = data;
         a.download = `spyder_capture_${Date.now()}.${type === 'img' ? 'png' : 'webm'}`;
         a.click();
+    };
+
+    window.clearSpyderGal = () => {
+        if(confirm("Are you sure you want to delete all captures?")) {
+            localStorage.setItem('spyder_gal', '[]');
+            loadSpyderGal();
+        }
     };
 
     function loadSpyderGal() {
