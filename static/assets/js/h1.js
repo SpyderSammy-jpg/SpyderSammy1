@@ -162,21 +162,19 @@ document.addEventListener("DOMContentLoaded", event => {
       },
       retina_detect: true,
     };
-    // Ensure particles.js is loaded in your HTML before this runs
     particlesJS("particles-js", particlesConfig);
   }
 });
 // Splash texts
 const SplashT = [
-  "Thanks for using SpyderSammyUI Proxy",
-  "Made by SpyderSammy",
-  "Check out my new SpyderSammy Proxy! :)",
-  "SpyderSammy is a high-speed proxy designed to bypass school filters.",
+  "Thank You for using SpyderSammy UI",
+  "Check out the settings page!",
+  "Contact SpyderSammy-jpg on github for updates, errors and new urls",
+  "W Proxy Server",
+  "Thanks for using the site",
   "All hail SpyderSammy",
-  "Check out the settings page",
+  "Tung Tung Tung Sahur",
   "Don't forget to play admin abuse this week!",
-  "Contact SpyderSammy-jpg on github for updates, requests, errors and new url's",
-  "Tung Tung Tung Sahur!",
 ];
 
 let SplashI = Math.floor(Math.random() * SplashT.length);
@@ -187,10 +185,9 @@ function US() {
   SplashE.innerText = SplashT[SplashI];
 }
 
-if (SplashE) {
-  SplashE.innerText = SplashT[SplashI];
-  
-  SplashE.addEventListener("click", US);
+SplashE.innerText = SplashT[SplashI];
+
+SplashE.addEventListener("click", US);
 // Random URL
 function getRandomUrl() {
   const randomUrls = [
