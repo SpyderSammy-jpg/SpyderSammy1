@@ -83,3 +83,14 @@ document.querySelectorAll('.game-card, .app-card, a[href*="go"]').forEach(link =
         }
     });
 });
+/* --- REDIRECT GAMES/APPS TO TABS --- */
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link && (link.href.includes('games') || link.href.includes('apps'))) {
+        if (!link.href.endsWith('.html')) {
+            e.preventDefault();
+            localStorage.setItem("autoSearch", link.href);
+            window.location.href = "/tabs.html";
+        }
+    }
+});
