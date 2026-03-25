@@ -72,3 +72,14 @@ function isUrl(val = "") {
   }
   return false;
 }
+// Force Games/Apps to load in Tabs
+document.querySelectorAll('.game-card, .app-card, a[href*="go"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+        const url = link.getAttribute('href') || link.dataset.url;
+        if (url && !url.includes('.html')) {
+            e.preventDefault();
+            localStorage.setItem("spyderSearch", url);
+            window.location.href = "/tabs.html";
+        }
+    });
+});
