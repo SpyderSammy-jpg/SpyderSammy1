@@ -656,3 +656,85 @@ function randRange(min, max) {
         stickies.forEach(s => spawnSticky(s));
     });
 })();
+/* --- SPYDER-OS MULTI-APP & SEARCH LOGIC --- */
+const spyderApps = {
+    eagler: { url: "https://takaiwebite.neocities.org", name: "Minecraft", icon: "⛏️" },
+    spyder: { url: "/", name: "SpyderSammy", icon: "🕷️" },
+    nyx: { url: "https://222-bypassnetwork.vercel.app", name: "Nyx", icon: "🐦" },
+    settings: { url: "https://spyder-network.vercel.app", name: "Settings", icon: "⚙️" }
+};
+
+// Handle Search Redirect to Tabs
+document.addEventListener("DOMContentLoaded", () => {
+    const searchForm = document.getElementById("fv");
+    const searchInput = document.getElementById("input");
+    if (searchForm) {
+        searchForm.onsubmit = (e) => {
+            e.preventDefault();
+            localStorage.setItem("spyderSearch", searchInput.value);
+            window.location.href = "/tabs.html"; 
+        };
+    }
+
+    // If on Tabs page, auto-load the search
+    if (window.location.pathname.includes("tabs.html")) {
+        const pending = localStorage.getItem("spyderSearch");
+        if (pending) {
+            localStorage.removeItem("spyderSearch");
+            const tabInput = document.querySelector(".tab-search-input") || document.getElementById("input");
+            if (tabInput) {
+                tabInput.value = pending;
+                if (typeof window.loadURL === 'function') window.loadURL(pending);
+            }
+        }
+    }
+});
+
+// Inject App Circles into Taskbar
+(function injectApps() {
+    const taskBar = document.getElementById('spyder-bar');
+    if (taskBar) {
+        const appContainer = document.createElement('div');
+        appContainer.className = 'task-center';
+        appContainer.style = "display:flex; gap:15px; position:absolute; left:50%; transform:translateX(-50%); align-items:center;";
+        
+        appContainer.innerHTML = `
+            <div class="app-circle" onclick="openSpyderApp('eagler')">⛏️</div>
+            <div class="app-circle" onclick="openSpyderApp('spyder')">🕷️</div>
+            <div class="app-circle" onclick="openSpyderApp('nyx')">🐦</div>
+            <div class="app-circle" onclick="openSpyderApp('settings')">⚙️</div>
+        `;
+        taskBar.appendChild(appContainer);
+    }
+    
+    // Inject the App Window Container
+    const winHTML = `
+    <div id="spyder-app-win" class="spyder-window" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:75%; background:#000; border:2px solid #ff0000; z-index:10015;">
+        <div class="window-header" style="background:#ff0000; color:#000; display:flex; justify-content:space-between; padding:5px 10px; cursor:move;">
+            <span id="spyder-win-title">App</span>
+            <div style="display:flex; gap:10px;">
+                <span onclick="minSpyderApp()" style="color:#ffff00; cursor:pointer; font-weight:bold;">●</span>
+                <span onclick="closeSpyderApp()" style="color:#000; cursor:pointer; font-weight:bold;">●</span>
+            </div>
+        </div>
+        <iframe id="spyder-app-frame" src="" style="width:100%; height:calc(100% - 35px); border:none;"></iframe>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', winHTML);
+})();
+
+window.openSpyderApp = function(key) {
+    const app = spyderApps[key];
+    if (key === 'spyder') { window.location.href = "/"; return; }
+    document.getElementById('spyder-win-title').innerText = app.name;
+    document.getElementById('spyder-app-frame').src = app.url;
+    document.getElementById('spyder-app-win').style.display = 'flex';
+};
+
+window.closeSpyderApp = function() {
+    document.getElementById('spyder-app-win').style.display = 'none';
+    document.getElementById('spyder-app-frame').src = '';
+};
+
+window.minSpyderApp = function() {
+    document.getElementById('spyder-app-win').style.display = 'none';
+};
