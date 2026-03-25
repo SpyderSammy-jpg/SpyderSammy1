@@ -91,3 +91,28 @@
   </script>
 </body>
 </html>
+
+// Force Games/Apps to load in Tabs
+document.querySelectorAll('.game-card, .app-card, a[href*="go"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+        const url = link.getAttribute('href') || link.dataset.url;
+        if (url && !url.includes('.html')) {
+            e.preventDefault();
+            localStorage.setItem("spyderSearch", url);
+            window.location.href = "/tabs.html";
+        }
+    });
+});
+/* --- HOME SEARCH REDIRECT --- */
+const spyderForm = document.getElementById("fv");
+const spyderInput = document.getElementById("input");
+if (spyderForm && spyderInput) {
+    spyderForm.addEventListener("submit", (e) => {
+        // Only redirect if searching from the Home page
+        if (!window.location.pathname.includes("tabs.html")) {
+            e.preventDefault();
+            localStorage.setItem("spyderSearch", spyderInput.value);
+            window.location.href = "/tabs.html";
+        }
+    });
+}
