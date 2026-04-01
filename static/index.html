@@ -5,7 +5,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" id="tab-favicon" href="https://ssl.gstatic.com" />
+  <link rel="shortcut icon" id="tab-favicon" href="https://gstatic.com" />
   <title id="t">Home - Classroom</title>
 
   <!-- External Styles -->
@@ -13,14 +13,14 @@
   <link rel="stylesheet" href="/assets/css/h.css?v=01" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
 
-  <!-- Google Fonts for Real Decorative Themes -->
+  <!-- Google Fonts for Decorative Themes -->
   <link href="https://googleapis.com" rel="stylesheet">
 
   <style>
-    /* 1. Global Background - Removed !important to keep Taskbar/Navbar visible */
+    /* 1. Global Black Background */
     html, body, #particles-js, .main, .center {
-      background: #000;
-      background-color: #000;
+      background: #000 !important;
+      background-color: #000 !important;
     }
 
     /* 2. Title Styling */
@@ -49,18 +49,19 @@
       display: block; margin: 10px auto; padding: 8px; background: #111; border: 1px solid #ff0000; color: #fff; width: 220px;
     }
 
-    /* Crown Icon - Matches Tools Box */
+    /* Admin Button - MOVED TO LEFT, REPLACED EMOJI WITH TEXT */
     #crown-btn {
-      display: none; position: fixed; top: 120px; right: 20px; z-index: 10000;
-      cursor: pointer; border: 1px solid #ff0000; border-radius: 8px; padding: 8px;
-      background: rgba(0,0,0,0.8); transition: right 0.3s ease;
+      display: none; position: fixed; top: 110px; left: 20px; z-index: 10000;
+      cursor: pointer; border: 2px solid #ff0000; border-radius: 8px; padding: 10px 15px;
+      background: rgba(0,0,0,0.8); transition: left 0.3s ease;
+      color: #ff0000; font-family: sans-serif; font-weight: bold; font-size: 14px;
+      text-transform: uppercase; letter-spacing: 1px;
     }
-    #crown-btn img { width: 30px; height: 30px; filter: drop-shadow(0 0 5px red); }
 
-    /* Admin Dropdown Menu */
+    /* Admin Dropdown Menu - MOVED TO LEFT */
     #admin-menu {
-      display: none; position: fixed; top: 175px; right: 20px; background: #000;
-      border: 2px solid #ff0000; z-index: 10000; width: 140px; border-radius: 5px;
+      display: none; position: fixed; top: 165px; left: 20px; background: #000;
+      border: 1px solid #ff0000; z-index: 10000; width: 140px; border-radius: 5px;
     }
     .admin-opt { padding: 12px; color: white; cursor: pointer; border-bottom: 1px solid #333; text-align: center; font-family: sans-serif; }
     .admin-opt:hover { background: #ff0000; color: black; }
@@ -90,9 +91,7 @@
     <button onclick="checkAdmin()" style="background:#ff0000; border:none; padding:10px 20px; cursor:pointer; font-weight:bold;">Login</button>
   </div>
 
-  <div id="crown-btn" onclick="toggleAdminMenu()">
-    <img src="https://icons8.com" alt="Crown">
-  </div>
+  <div id="crown-btn" onclick="toggleAdminMenu()">Admin</div>
 
   <div id="admin-menu">
     <div class="admin-opt" onclick="toggleConsole()">Console</div>
@@ -194,9 +193,14 @@
       if (splash) document.getElementById('splash').innerText = splash;
       if (localStorage.getItem('isAdmin') === 'true') document.getElementById('crown-btn').style.display = 'block';
 
-      if (music && !window.musicPlayed) {
-        const audio = new Audio(music);
-        document.body.addEventListener('click', () => { audio.play(); window.musicPlayed = true; }, {once: true});
+      // YOUTUBE LOGIC: Opens in new tab on click after save
+      if (music && !window.tabOpened) {
+        document.body.addEventListener('click', () => { 
+          if (!window.tabOpened) {
+            window.open(music, '_blank'); 
+            window.tabOpened = true; 
+          }
+        }, {once: true});
       }
     }
 
@@ -212,11 +216,12 @@
 
     window.onload = applyAdminSettings;
 
+    // ALIGNMENT: Adjusted for Left side
     setInterval(() => {
       const side = document.querySelector('.sidebar');
-      const offset = (side && side.style.display !== 'none') ? '325px' : '20px';
-      document.getElementById('crown-btn').style.right = offset;
-      document.getElementById('admin-menu').style.right = offset;
+      const offset = (side && side.style.display !== 'none') ? '20px' : '20px';
+      document.getElementById('crown-btn').style.left = offset;
+      document.getElementById('admin-menu').style.left = offset;
     }, 400);
   </script>
 </body>
