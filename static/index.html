@@ -89,5 +89,141 @@
     gtag("js", new Date());
     gtag("config", "G-WKJQ5QHQTJ");
   </script>
+  <!-- Admin System Styles -->
+<style>
+  /* Admin Login Popup */
+  #admin-auth-popup {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #000; border: 3px solid #ff0000; padding: 25px; z-index: 9999;
+    color: #ff0000; font-family: sans-serif; text-align: center; border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255,0,0,0.5);
+  }
+  #admin-auth-popup input {
+    display: block; margin: 10px auto; padding: 8px; background: #222; border: 1px solid #ff0000; color: #fff;
+  }
+  #admin-auth-popup button {
+    background: #ff0000; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold;
+  }
+
+  /* Crown Icon */
+  #crown-btn {
+    display: none; position: fixed; top: 15px; right: 15px; z-index: 10000;
+    cursor: pointer; font-size: 24px; transition: right 0.3s ease;
+  }
+
+  /* Admin Menu */
+  #admin-menu {
+    display: none; position: fixed; top: 55px; right: 15px; background: #111;
+    border: 1px solid #ff0000; z-index: 10000; width: 120px; border-radius: 5px;
+  }
+  .admin-opt {
+    padding: 10px; color: white; cursor: pointer; border-bottom: 1px solid #333; text-align: center;
+  }
+  .admin-opt:hover { background: #ff0000; color: black; }
+
+  /* Console */
+  #admin-console {
+    display: none; position: fixed; bottom: 20px; left: 20px; background: #000;
+    border: 2px solid #ff0000; padding: 10px; z-index: 10001;
+  }
+  #admin-console input { background: #000; color: #0f0; border: none; outline: none; width: 200px; font-family: monospace; }
+  .close-x { color: red; float: right; cursor: pointer; margin-left: 10px; font-weight: bold; }
+</style>
+
+<!-- Admin UI Elements -->
+<div id="admin-auth-popup">
+  <h2>Admin Login</h2>
+  <input type="text" id="adm-user" placeholder="Username">
+  <input type="password" id="adm-pass" placeholder="Password">
+  <button onclick="checkAdmin()">Login</button>
+  <p id="adm-err" style="font-size: 12px; color: yellow;"></p>
+</div>
+
+<div id="crown-btn" onclick="toggleAdminMenu()">👑</div>
+
+<div id="admin-menu">
+  <div class="admin-opt" onclick="toggleConsole()">Console</div>
+  <div class="admin-opt" onclick="alert('Global Edit coming soon (Requires Database)')">Edit</div>
+</div>
+
+<div id="admin-console">
+  <span class="close-x" onclick="toggleConsole()">X</span>
+  <input type="text" id="console-input" placeholder="Type command..." onkeydown="handleCmd(event)">
+</div>
+
+<script>
+  // 1. Detect Calendar Click (Simulated via searching for Interstellar's specific sidebar calendar)
+  document.addEventListener('click', function(e) {
+    // This targets cells in most JS calendars. Adjust if your calendar uses specific classes.
+    if (e.target.classList.contains('flatpickr-day') || e.target.closest('.calendar-day')) {
+      const today = new Date().getDate();
+      if (e.target.innerText == today) {
+        document.getElementById('admin-auth-popup').style.display = 'block';
+      }
+    }
+  });
+
+  // 2. Authentication
+  function checkAdmin() {
+    const u = document.getElementById('adm-user').value;
+    const p = document.getElementById('adm-pass').value;
+    if (u === "Sharvesh" && p === "00010698") {
+      localStorage.setItem('isAdmin', 'true');
+      showCrown();
+      document.getElementById('admin-auth-popup').style.display = 'none';
+    } else {
+      document.getElementById('adm-err').innerText = "Invalid Credentials";
+    }
+  }
+
+  function showCrown() {
+    if (localStorage.getItem('isAdmin') === 'true') {
+      document.getElementById('crown-btn').style.display = 'block';
+    }
+  }
+
+  // 3. Menu & Console Toggles
+  function toggleAdminMenu() {
+    const menu = document.getElementById('admin-menu');
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+  }
+
+  function toggleConsole() {
+    const con = document.getElementById('admin-console');
+    con.style.display = (con.style.display === 'block') ? 'none' : 'block';
+    document.getElementById('admin-menu').style.display = 'none';
+  }
+
+  // 4. Command Handling
+  function handleCmd(e) {
+    if (e.key === 'Enter') {
+      const cmd = e.target.value.trim();
+      if (cmd === '/refresh') {
+        location.reload(); // Locally works. Global requires WebSocket/Firebase.
+      } else if (cmd === '/home') {
+        window.location.href = '/';
+      } else if (cmd === '/close') {
+        window.close();
+      }
+      e.target.value = '';
+    }
+  }
+
+  // 5. Stay visible on refresh
+  window.onload = showCrown;
+
+  // 6. Sidebar shift logic
+  const observer = new MutationObserver(() => {
+    const sidebar = document.querySelector('.sidebar'); // Adjust selector to Interstellar's sidebar class
+    if (sidebar && sidebar.classList.contains('active')) {
+      document.getElementById('crown-btn').style.right = '315px';
+      document.getElementById('admin-menu').style.right = '315px';
+    } else {
+      document.getElementById('crown-btn').style.right = '15px';
+      document.getElementById('admin-menu').style.right = '15px';
+    }
+  });
+  observer.observe(document.body, { attributes: true, subtree: true });
+</script>
 </body>
 </html>
