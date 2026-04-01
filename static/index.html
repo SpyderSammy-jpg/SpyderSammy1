@@ -5,7 +5,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" id="tab-favicon" href="https://ssl.gstatic.com" />
+  <link rel="shortcut icon" id="tab-favicon" href="https://gstatic.com" />
   <title id="t">Home - Classroom</title>
 
   <!-- External Styles -->
@@ -14,53 +14,60 @@
   <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
 
   <style>
-    /* 1. Global Black Background */
+    /* 1. Background - Removed !important so Admin Edit works */
     html, body, #particles-js, .main, .center {
-      background: #000 !important;
-      background-color: #000 !important;
-      background-image: none !important;
+      background-color: #000;
+      background-image: none;
+      transition: background-color 0.4s ease;
     }
 
-    /* 2. Red/Yellow Font Styling for Title */
+    /* 2. Title Styling */
     .title {
       color: #ff0000 !important;
       -webkit-text-stroke: 1.5px #ffff00;
       font-weight: 900;
+      cursor: pointer;
+      user-select: none;
     }
 
-    /* 3. TARGETED LOGO REMOVAL */
-    .f-nav img, 
-    .f-nav::before, 
-    .f-nav::after,
-    .f-nav [class*="logo"] { 
-      display: none !important; 
-      background-image: none !important;
-      content: none !important;
+    /* 3. Admin Elements Style */
+    #admin-auth-popup, #edit-popup {
+      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #000; border: 2px solid #ff0000; padding: 25px; z-index: 10005;
+      color: #ff0000; font-family: sans-serif; text-align: center; border-radius: 8px;
+    }
+    #admin-auth-popup input, #edit-popup input {
+      display: block; margin: 10px auto; padding: 8px; background: #111; border: 1px solid #ff0000; color: #fff;
     }
 
-    /* 4. RESTORE ALL LINKS */
-    .f-nav a, .f-nav .nav-link {
-      display: inline-block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      color: white !important;
-      padding: 0 15px;
-      text-decoration: none;
+    /* Crown Icon - Styled to match your Tools Icon */
+    #crown-btn {
+      display: none; position: fixed; top: 110px; right: 20px; z-index: 10000;
+      cursor: pointer; border: 1px solid #ff0000; border-radius: 8px; padding: 8px;
+      background: rgba(0,0,0,0.8); transition: right 0.3s ease;
     }
+    #crown-btn img { width: 30px; height: 30px; filter: drop-shadow(0 0 5px red); }
 
-    .f-nav {
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      background: #000 !important;
-      height: 50px;
+    /* Admin Dropdown Menu */
+    #admin-menu {
+      display: none; position: fixed; top: 165px; right: 20px; background: #000;
+      border: 1px solid #ff0000; z-index: 10000; width: 140px; border-radius: 5px;
     }
+    .admin-opt { padding: 12px; color: white; cursor: pointer; border-bottom: 1px solid #333; text-align: center; font-family: sans-serif; }
+    .admin-opt:hover { background: #ff0000; color: black; }
+
+    /* Console */
+    #admin-console {
+      display: none; position: fixed; bottom: 20px; left: 20px; background: #000;
+      border: 2px solid #ff0000; padding: 10px; z-index: 10001;
+    }
+    #admin-console input { background: #000; color: #0f0; border: none; outline: none; width: 250px; font-family: monospace; }
   </style>
 
-  <script async src="https://pagead2.googlesyndication.com" crossorigin="anonymous"></script>
+  <script async src="https://googlesyndication.com" crossorigin="anonymous"></script>
 </head>
 
-<body class="center" onload="SplashT">
+<body class="center">
   <div class="f-nav"></div>
 
   <div id="particles-js">
@@ -75,186 +82,123 @@
     </div>
   </div>
 
+  <!-- Admin UI Elements -->
+  <div id="admin-auth-popup">
+    <h2>Admin Login</h2>
+    <input type="text" id="adm-user" placeholder="Username">
+    <input type="password" id="adm-pass" placeholder="Password">
+    <button onclick="checkAdmin()" style="background:#ff0000; border:none; padding:10px 20px; cursor:pointer;">Login</button>
+  </div>
+
+  <div id="crown-btn" onclick="toggleAdminMenu()">
+    <img src="https://icons8.com" alt="Crown">
+  </div>
+
+  <div id="admin-menu">
+    <div class="admin-opt" onclick="toggleConsole()">Console</div>
+    <div class="admin-opt" onclick="toggleEdit()">Edit</div>
+  </div>
+
+  <div id="admin-console">
+    <span onclick="this.parentElement.style.display='none'" style="color:red; float:right; cursor:pointer;">X</span>
+    <input type="text" id="console-input" placeholder="Type command..." onkeydown="handleCmd(event)">
+  </div>
+
+  <div id="edit-popup">
+    <h3>Global Settings</h3>
+    <p>Background Color</p>
+    <input type="color" id="bg-picker" style="width:100%">
+    <p>Music (YouTube URL)</p>
+    <input type="text" id="yt-url" placeholder="://youtube.com...">
+    <button onclick="saveGlobal()" style="background:#ff0000; color:black; border:none; padding:10px; cursor:pointer;">Apply & Save</button>
+    <button onclick="toggleEdit()" style="background:#444; color:white; border:none; padding:10px; margin-left:5px; cursor:pointer;">Close</button>
+  </div>
+
   <!-- Scripts -->
   <script src="assets/js/index-3.js"></script>
   <script src="/assets/js/h1.js"></script>
   <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
   <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
   <script src="/assets/js/m1.js"></script>
-  <script async src="https://googletagmanager.com"></script>
 
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag("js", new Date());
-    gtag("config", "G-WKJQ5QHQTJ");
+    // 1. Triple Click Logic
+    let clickCount = 0;
+    document.querySelector('.title').addEventListener('click', () => {
+      clickCount++;
+      if (clickCount === 3) {
+        document.getElementById('admin-auth-popup').style.display = 'block';
+        clickCount = 0;
+      }
+      setTimeout(() => { clickCount = 0; }, 800);
+    });
+
+    // 2. Admin Functions
+    function checkAdmin() {
+      if (document.getElementById('adm-user').value === "Sharvesh" && document.getElementById('adm-pass').value === "00010698") {
+        localStorage.setItem('isAdmin', 'true');
+        location.reload();
+      }
+    }
+
+    function toggleAdminMenu() {
+      const m = document.getElementById('admin-menu');
+      m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function toggleConsole() {
+      document.getElementById('admin-console').style.display = 'block';
+      document.getElementById('admin-menu').style.display = 'none';
+    }
+
+    function toggleEdit() {
+      const e = document.getElementById('edit-popup');
+      e.style.display = (e.style.display === 'block') ? 'none' : 'block';
+      document.getElementById('admin-menu').style.display = 'none';
+    }
+
+    function handleCmd(e) {
+      if (e.key === 'Enter') {
+        const cmd = e.target.value.trim();
+        if (cmd === '/refresh') { location.reload(); }
+        else if (cmd === '/home') { window.location.href = '/'; }
+        else if (cmd === '/close') { window.close(); }
+        e.target.value = '';
+      }
+    }
+
+    function saveGlobal() {
+      const color = document.getElementById('bg-picker').value;
+      let url = document.getElementById('yt-url').value;
+      if (url.includes('youtube.com')) url = url.replace('youtube.com', 'yout-ube.com');
+      localStorage.setItem('globalBG', color);
+      localStorage.setItem('globalMusic', url);
+      applySettings();
+      toggleEdit();
+    }
+
+    function applySettings() {
+      const color = localStorage.getItem('globalBG');
+      if (color) {
+        ['html', 'body', '#particles-js', '.main'].forEach(sel => {
+          const el = document.querySelector(sel);
+          if (el) el.style.backgroundColor = color;
+        });
+      }
+      if (localStorage.getItem('isAdmin') === 'true') {
+        document.getElementById('crown-btn').style.display = 'block';
+      }
+    }
+
+    window.onload = applySettings;
+
+    // Sidebar Shift Logic
+    setInterval(() => {
+      const side = document.querySelector('.sidebar');
+      const offset = (side && side.style.display !== 'none') ? '325px' : '20px';
+      document.getElementById('crown-btn').style.right = offset;
+      document.getElementById('admin-menu').style.right = offset;
+    }, 300);
   </script>
-<!-- Admin System Styles -->
-<style>
-  /* Admin Login Popup */
-  #admin-auth-popup {
-    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #000; border: 3px solid #ff0000; padding: 25px; z-index: 10002;
-    color: #ff0000; font-family: sans-serif; text-align: center; border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255,0,0,0.5);
-  }
-  #admin-auth-popup input {
-    display: block; margin: 10px auto; padding: 8px; background: #222; border: 1px solid #ff0000; color: #fff;
-  }
-  #admin-auth-popup button {
-    background: #ff0000; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top:10px;
-  }
-
-  /* Crown Icon */
-  #crown-btn {
-    display: none; position: fixed; top: 15px; right: 15px; z-index: 10000;
-    cursor: pointer; font-size: 28px; transition: right 0.3s ease;
-  }
-
-  /* Admin Menu (Dropdown) */
-  #admin-menu {
-    display: none; position: fixed; top: 60px; right: 15px; background: #111;
-    border: 2px solid #ff0000; z-index: 10000; width: 140px; border-radius: 5px;
-  }
-  .admin-opt { padding: 12px; color: white; cursor: pointer; border-bottom: 1px solid #333; text-align: center; font-family: sans-serif; }
-  .admin-opt:hover { background: #ff0000; color: black; }
-
-  /* Console */
-  #admin-console {
-    display: none; position: fixed; bottom: 20px; left: 20px; background: #000;
-    border: 2px solid #ff0000; padding: 10px; z-index: 10001;
-  }
-  #admin-console input { background: #000; color: #0f0; border: none; outline: none; width: 250px; font-family: monospace; }
-  .close-x { color: red; float: right; cursor: pointer; margin-left: 10px; font-weight: bold; }
-
-  /* Edit Global Popup */
-  #edit-popup {
-    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #111; border: 3px solid #ff0000; padding: 20px; z-index: 10003;
-    color: white; width: 350px; text-align: center; font-family: sans-serif;
-  }
-  .edit-section { margin-bottom: 20px; padding: 10px; border-bottom: 1px solid #444; }
-</style>
-
-<!-- Admin UI Elements -->
-<div id="admin-auth-popup">
-  <h2 style="margin-top:0;">Admin Login</h2>
-  <input type="text" id="adm-user" placeholder="Username">
-  <input type="password" id="adm-pass" placeholder="Password">
-  <button onclick="checkAdmin()">Login</button>
-  <p id="adm-err" style="font-size: 12px; color: yellow;"></p>
-</div>
-
-<div id="crown-btn" onclick="toggleAdminMenu()">👑</div>
-
-<div id="admin-menu">
-  <div class="admin-opt" onclick="toggleConsole()">Console</div>
-  <div class="admin-opt" onclick="toggleEdit()">Edit</div>
-</div>
-
-<div id="admin-console">
-  <span class="close-x" onclick="this.parentElement.style.display='none'">X</span>
-  <input type="text" id="console-input" placeholder="Type command..." onkeydown="handleCmd(event)">
-</div>
-
-<div id="edit-popup">
-  <h3>Global Settings</h3>
-  <div class="edit-section">
-    <p>Background Color</p>
-    <input type="color" id="bg-picker" style="width:100%">
-  </div>
-  <div class="edit-section">
-    <p>Background Music (YouTube URL)</p>
-    <input type="text" id="yt-url" placeholder="://youtube.com..." style="width:90%; padding:5px; background:#222; color:white; border:1px solid #444;">
-  </div>
-  <button onclick="saveGlobal()" style="background:#ff0000; color:black; border:none; padding:8px 15px; cursor:pointer;">Save Changes</button>
-  <button onclick="toggleEdit()" style="background:#444; color:white; border:none; padding:8px 15px; cursor:pointer; margin-left:10px;">Close</button>
-</div>
-
-<script>
-  // 1. Secret Login: Click "SpyderSammy" Logo
-  document.querySelector('.title').style.cursor = 'pointer';
-  document.querySelector('.title').onclick = function() {
-    document.getElementById('admin-auth-popup').style.display = 'block';
-  };
-
-  // 2. Auth Logic
-  function checkAdmin() {
-    const u = document.getElementById('adm-user').value;
-    const p = document.getElementById('adm-pass').value;
-    if (u === "Sharvesh" && p === "00010698") {
-      localStorage.setItem('isAdmin', 'true');
-      showCrown();
-      document.getElementById('admin-auth-popup').style.display = 'none';
-    } else { document.getElementById('adm-err').innerText = "Invalid Credentials"; }
-  }
-
-  function showCrown() {
-    if (localStorage.getItem('isAdmin') === 'true') {
-      document.getElementById('crown-btn').style.display = 'block';
-    }
-  }
-
-  // 3. UI Toggles
-  function toggleAdminMenu() {
-    const m = document.getElementById('admin-menu');
-    m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-  }
-  function toggleConsole() {
-    document.getElementById('admin-console').style.display = 'block';
-    document.getElementById('admin-menu').style.display = 'none';
-  }
-  function toggleEdit() {
-    const e = document.getElementById('edit-popup');
-    e.style.display = (e.style.display === 'block') ? 'none' : 'block';
-    document.getElementById('admin-menu').style.display = 'none';
-  }
-
-  // 4. Commands Logic
-  function handleCmd(e) {
-    if (e.key === 'Enter') {
-      const cmd = e.target.value.trim();
-      if (cmd === '/refresh') { location.reload(); }
-      else if (cmd === '/home') { window.location.href = '/'; }
-      else if (cmd === '/close') { window.close(); }
-      e.target.value = '';
-    }
-  }
-
-  // 5. Global Settings (LocalStorage for persistence on refresh)
-  function saveGlobal() {
-    const color = document.getElementById('bg-picker').value;
-    let url = document.getElementById('yt-url').value;
-    if (url.includes('youtube.com')) {
-      url = url.replace('youtube.com', 'yout-ube.com'); // The "-" trick
-    }
-    localStorage.setItem('globalBG', color);
-    localStorage.setItem('globalMusic', url);
-    alert('Changes saved! Refresh to apply.');
-    location.reload();
-  }
-
-  // Apply saved settings on load
-  window.onload = function() {
-    showCrown();
-    if (localStorage.getItem('globalBG')) {
-      document.body.style.backgroundColor = localStorage.getItem('globalBG');
-      document.body.style.backgroundImage = 'none';
-    }
-    if (localStorage.getItem('globalMusic')) {
-      const audio = new Audio(localStorage.getItem('globalMusic'));
-      // Note: Browsers block auto-play until first click
-      document.body.addEventListener('click', () => { audio.play(); }, {once: true});
-    }
-  };
-
-  // Sidebar Shift Logic
-  setInterval(() => {
-    const side = document.querySelector('.sidebar'); // Target interstellar sidebar class
-    const offset = (side && side.style.display !== 'none') ? '315px' : '15px';
-    document.getElementById('crown-btn').style.right = offset;
-    document.getElementById('admin-menu').style.right = offset;
-  }, 500);
-</script>
 </body>
 </html>
