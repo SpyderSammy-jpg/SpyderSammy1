@@ -7,76 +7,125 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" id="tab-favicon" href="https://ssl.gstatic.com" />
   <title id="t">Home - Classroom</title>
+  
+  <!-- 1. ADDED CLERK SDK HERE -->
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_ZnJlc2gtcmF5LTU1LmNsZXJrLmFjY291bnRzLmRldiQ"
+    src="https://accounts.dev"
+    type="text/javascript">
+  </script>
+
   <link rel="stylesheet" href="/assets/css/global.css?v=6" />
   <link rel="stylesheet" href="/assets/css/h.css?v=01" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
-    <style>
-    /* 1. Global Black Background */
+  <style>
+    /* Global Black Background */
     html, body, #particles-js, .main, .center {
       background: #000 !important;
       background-color: #000 !important;
       background-image: none !important;
+      color: white;
     }
-    /* 2. Red/Yellow Font Styling for Title */
+
+    /* Lock Screen Styling */
+    #lock-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    /* Hide main content by default */
+    #main-content {
+      display: none;
+    }
+
     .title {
       color: #ff0000 !important;
       -webkit-text-stroke: 1.5px #ffff00;
       font-weight: 900;
     }
-    /* 3. TARGETED LOGO REMOVAL ONLY */
-    /* Hides any images or background-image logos inside the nav */
-    .f-nav img, 
-    .f-nav::before, 
-    .f-nav::after,
-    .f-nav [class*="logo"] { 
+
+    .f-nav img, .f-nav::before, .f-nav::after, .f-nav [class*="logo"] { 
        display: none !important; 
        background-image: none !important;
-      content: none !important;
+       content: none !important;
     }
-    /* 4. RESTORE ALL LINKS */
-    /* This forces the Games, Browser, and Settings links to show */
+
     .f-nav a, .f-nav .nav-link {
       display: inline-block !important;
       visibility: visible !important;
       opacity: 1 !important;
-      color: white !important; /* Ensures they aren't invisible against black */
+      color: white !important;
       padding: 0 15px;
       text-decoration: none;
     }
+
     .f-nav {
       display: flex !important;
       align-items: center;
-      justify-content: center; /* Centers your links since logo is gone */
+      justify-content: center;
       background: #000 !important;
       height: 50px;
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com" crossorigin="anonymous"></script>
 </head>
-<body class="center" onload="SplashT">
-  <div class="f-nav"></div>
-  <div id="particles-js">
-    <div class="main">
-      <h1 class="title">SpyderSammy</h1>
-      <p id="splash"></p>
-      <div class="search-container">
-        <form id="fv" method="POST">
-          <input id="input" class="truncate" placeholder="Searching doesn't work, click on the Tabs tab and type your url there!" type="text" />
-        </form>
+
+<body class="center">
+  <!-- 2. ADDED LOCK SCREEN DIV -->
+  <div id="lock-screen">
+    <h1 class="title" style="margin-bottom: 20px;">SpyderSammy</h1>
+    <p style="color: white; margin-bottom: 20px;">Please Sign in with Google to continue</p>
+    <div id="clerk-signin"></div>
+  </div>
+
+  <!-- 3. WRAPPED CONTENT IN MAIN-CONTENT DIV -->
+  <div id="main-content">
+    <div class="f-nav"></div>
+    <div id="particles-js">
+      <div class="main">
+        <h1 class="title">SpyderSammy</h1>
+        <p id="splash"></p>
+        <div class="search-container">
+          <form id="fv" method="POST">
+            <input id="input" class="truncate" placeholder="Searching doesn't work, click on the Tabs tab and type your url there!" type="text" />
+          </form>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Scripts -->
   <script src="assets/js/index-3.js"></script>
   <script src="/assets/js/h1.js"></script>
   <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
   <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
   <script src="/assets/js/m1.js"></script>
-  <script async src="https://www.googletagmanager.com"></script>
+
+  <!-- 4. ADDED AUTH LOGIC SCRIPT -->
   <script>
-    window.dataLayer = window.dataLayer || []
-    function gtag() { dataLayer.push(arguments) }
-    gtag("js", new Date())
-    gtag("config", "G-WKJQ5QHQTJ")
+    window.addEventListener('load', async function () {
+      await Clerk.load();
+
+      if (Clerk.user) {
+        // User passed Google + Email Code
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+      } else {
+        // Show the login UI (Google + Email Verification)
+        Clerk.mountSignIn(document.getElementById('clerk-signin'));
+      }
+    });
   </script>
 </body>
 </html>
