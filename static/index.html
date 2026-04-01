@@ -8,22 +8,17 @@
   <link rel="shortcut icon" id="tab-favicon" href="https://gstatic.com" />
   <title id="t">Home - Classroom</title>
 
-  <!-- External Styles -->
   <link rel="stylesheet" href="/assets/css/global.css?v=6" />
   <link rel="stylesheet" href="/assets/css/h.css?v=01" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=01" />
-
-  <!-- Google Fonts for Decorative Themes -->
   <link href="https://googleapis.com" rel="stylesheet">
 
   <style>
-    /* 1. Global Black Background */
     html, body, #particles-js, .main, .center {
       background: #000 !important;
       background-color: #000 !important;
     }
 
-    /* 2. Title Styling */
     .title {
       color: #ff0000 !important;
       -webkit-text-stroke: 1.5px #ffff00;
@@ -33,13 +28,11 @@
       transition: 0.4s all;
     }
 
-    /* THEMED FONT CLASSES */
     .f-easter { font-family: 'Fredoka One', cursive; color: #ff99cc !important; -webkit-text-stroke: 1.5px #fff; }
     .f-halloween { font-family: 'Creepster', cursive; color: #ff4500 !important; -webkit-text-stroke: 1px #000; letter-spacing: 3px; }
     .f-birthday { font-family: 'Bungee Shade', cursive; color: #00ffff !important; -webkit-text-stroke: 1.5px #ff00ff; }
     .f-christmas { font-family: 'Mountains of Christmas', cursive; color: #2e8b57 !important; -webkit-text-stroke: 1.5px #ff0000; }
 
-    /* 3. Admin Elements Style */
     #admin-auth-popup, #edit-popup {
       display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
       background: #000; border: 2px solid #ff0000; padding: 25px; z-index: 10005;
@@ -49,16 +42,14 @@
       display: block; margin: 10px auto; padding: 8px; background: #111; border: 1px solid #ff0000; color: #fff; width: 220px;
     }
 
-    /* Admin Button - MOVED TO LEFT, REPLACED EMOJI WITH TEXT */
     #crown-btn {
       display: none; position: fixed; top: 110px; left: 20px; z-index: 10000;
       cursor: pointer; border: 2px solid #ff0000; border-radius: 8px; padding: 10px 15px;
-      background: rgba(0,0,0,0.8); transition: left 0.3s ease;
+      background: rgba(0,0,0,0.8);
       color: #ff0000; font-family: sans-serif; font-weight: bold; font-size: 14px;
       text-transform: uppercase; letter-spacing: 1px;
     }
 
-    /* Admin Dropdown Menu - MOVED TO LEFT */
     #admin-menu {
       display: none; position: fixed; top: 165px; left: 20px; background: #000;
       border: 1px solid #ff0000; z-index: 10000; width: 140px; border-radius: 5px;
@@ -83,7 +74,6 @@
     </div>
   </div>
 
-  <!-- Popups -->
   <div id="admin-auth-popup">
     <h2>Admin Login</h2>
     <input type="text" id="adm-user" placeholder="Username">
@@ -94,7 +84,7 @@
   <div id="crown-btn" onclick="toggleAdminMenu()">Admin</div>
 
   <div id="admin-menu">
-    <div class="admin-opt" onclick="toggleConsole()">Console</div>
+    <div class="admin-opt" id="console-btn" onclick="toggleConsole()">Console</div>
     <div class="admin-opt" onclick="toggleEdit()">Edit</div>
     <div class="admin-opt" onclick="logoutAdmin()" style="color:red; font-weight:bold;">Logout</div>
   </div>
@@ -119,7 +109,6 @@
     <input type="text" id="console-input" placeholder="Command..." onkeydown="handleCmd(event)" style="background:#000; color:#0f0; border:none; outline:none; width:250px; font-family:monospace;">
   </div>
 
-  <!-- Scripts -->
   <script src="assets/js/index-3.js"></script>
   <script src="/assets/js/h1.js"></script>
   <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
@@ -132,13 +121,22 @@
 
     titleEl.addEventListener('click', () => {
       clickCount++;
-      if (clickCount === 3) { document.getElementById('admin-auth-popup').style.display = 'block'; clickCount = 0; }
+      if (clickCount === 3) {
+        document.getElementById('admin-auth-popup').style.display = 'block';
+        clickCount = 0;
+      }
       setTimeout(() => { clickCount = 0; }, 800);
     });
 
     function checkAdmin() {
-      if (document.getElementById('adm-user').value === "Sharvesh" && document.getElementById('adm-pass').value === "00010698") {
-        localStorage.setItem('isAdmin', 'true');
+      const user = document.getElementById('adm-user').value;
+      const pass = document.getElementById('adm-pass').value;
+
+      if (user === "Sharvesh" && pass === "00010698") {
+        localStorage.setItem('isAdmin', 'full');
+        location.reload();
+      } else if (user === "Rayhaan" && pass === "222") {
+        localStorage.setItem('isAdmin', 'limited');
         location.reload();
       }
     }
@@ -150,7 +148,16 @@
 
     function toggleAdminMenu() {
       const m = document.getElementById('admin-menu');
+      const role = localStorage.getItem('isAdmin');
+
       m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+
+      const consoleBtn = document.getElementById('console-btn');
+      if (role === 'limited') {
+        consoleBtn.style.display = 'none';
+      } else {
+        consoleBtn.style.display = 'block';
+      }
     }
 
     function toggleEdit() {
@@ -160,6 +167,9 @@
     }
 
     function toggleConsole() {
+      const role = localStorage.getItem('isAdmin');
+      if (role === 'limited') return;
+
       const c = document.getElementById('admin-console');
       c.style.display = (c.style.display === 'block') ? 'none' : 'block';
       document.getElementById('admin-menu').style.display = 'none';
@@ -187,18 +197,19 @@
       const font = localStorage.getItem('cFont');
       const splash = localStorage.getItem('cSplash');
       const music = localStorage.getItem('cMusic');
+      const role = localStorage.getItem('isAdmin');
 
       if (name) titleEl.innerText = name;
       if (font) titleEl.className = "title " + font;
       if (splash) document.getElementById('splash').innerText = splash;
-      if (localStorage.getItem('isAdmin') === 'true') document.getElementById('crown-btn').style.display = 'block';
 
-      // YOUTUBE LOGIC: Opens in new tab on click after save
+      if (role) document.getElementById('crown-btn').style.display = 'block';
+
       if (music && !window.tabOpened) {
-        document.body.addEventListener('click', () => { 
+        document.body.addEventListener('click', () => {
           if (!window.tabOpened) {
-            window.open(music, '_blank'); 
-            window.tabOpened = true; 
+            window.open(music, '_blank');
+            window.tabOpened = true;
           }
         }, {once: true});
       }
@@ -216,10 +227,8 @@
 
     window.onload = applyAdminSettings;
 
-    // ALIGNMENT: Adjusted for Left side
     setInterval(() => {
-      const side = document.querySelector('.sidebar');
-      const offset = (side && side.style.display !== 'none') ? '20px' : '20px';
+      const offset = '20px';
       document.getElementById('crown-btn').style.left = offset;
       document.getElementById('admin-menu').style.left = offset;
     }, 400);
