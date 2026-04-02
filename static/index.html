@@ -16,7 +16,6 @@
   <style>
     html, body, #particles-js, .main, .center {
       background: #000 !important;
-      background-color: #000 !important;
     }
 
     .title {
@@ -24,38 +23,59 @@
       -webkit-text-stroke: 1.5px #ffff00;
       font-weight: 900;
       cursor: pointer;
-      user-select: none;
-      transition: 0.4s all;
     }
 
-    .f-easter { font-family: 'Fredoka One', cursive; color: #ff99cc !important; -webkit-text-stroke: 1.5px #fff; }
-    .f-halloween { font-family: 'Creepster', cursive; color: #ff4500 !important; -webkit-text-stroke: 1px #000; letter-spacing: 3px; }
-    .f-birthday { font-family: 'Bungee Shade', cursive; color: #00ffff !important; -webkit-text-stroke: 1.5px #ff00ff; }
-    .f-christmas { font-family: 'Mountains of Christmas', cursive; color: #2e8b57 !important; -webkit-text-stroke: 1.5px #ff0000; }
-
-    #admin-auth-popup, #edit-popup {
-      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #000; border: 2px solid #ff0000; padding: 25px; z-index: 10005;
-      color: #ff0000; font-family: sans-serif; text-align: center; border-radius: 8px;
-    }
-    #admin-auth-popup input, #edit-popup input, #edit-popup select {
-      display: block; margin: 10px auto; padding: 8px; background: #111; border: 1px solid #ff0000; color: #fff; width: 220px;
+    #admin-auth-popup, #edit-popup, .popup {
+      display:none; position:fixed; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      background:#000; border:2px solid red;
+      padding:20px; z-index:10005; color:white;
     }
 
     #crown-btn {
-      display: none; position: fixed; top: 110px; left: 20px; z-index: 10000;
-      cursor: pointer; border: 2px solid #ff0000; border-radius: 8px; padding: 10px 15px;
-      background: rgba(0,0,0,0.8);
-      color: #ff0000; font-family: sans-serif; font-weight: bold; font-size: 14px;
-      text-transform: uppercase; letter-spacing: 1px;
+      display:none; position:fixed; top:110px; left:20px;
+      border:2px solid red; padding:10px;
+      cursor:pointer; color:red;
     }
 
     #admin-menu {
-      display: none; position: fixed; top: 165px; left: 20px; background: #000;
-      border: 1px solid #ff0000; z-index: 10000; width: 140px; border-radius: 5px;
+      display:none; position:fixed; top:165px; left:20px;
+      background:#000; border:1px solid red; width:160px;
     }
-    .admin-opt { padding: 12px; color: white; cursor: pointer; border-bottom: 1px solid #333; text-align: center; font-family: sans-serif; }
-    .admin-opt:hover { background: #ff0000; color: black; }
+
+    .admin-opt {
+      padding:10px; cursor:pointer;
+      border-bottom:1px solid #333;
+    }
+    .admin-opt:hover { background:red; color:black; }
+
+    .close-btn {
+      position:absolute; right:10px; top:5px;
+      cursor:pointer; color:red;
+    }
+
+    #editor {
+      width:100%; height:200px;
+      background:black; color:#0f0;
+    }
+
+    #preview {
+      width:100%; height:200px; border:none;
+      background:white;
+    }
+
+    #scan-bar {
+      width:100%; height:10px; background:#111;
+      overflow:hidden;
+    }
+    #scan-fill {
+      width:30%; height:100%; background:red;
+      animation: scan 1s infinite alternate;
+    }
+    @keyframes scan {
+      from { transform:translateX(0); }
+      to { transform:translateX(200%); }
+    }
   </style>
 </head>
 
@@ -67,8 +87,8 @@
       <h1 class="title" id="main-title">SpyderSammy</h1>
       <p id="splash"></p>
       <div class="search-container">
-        <form id="fv" method="POST">
-          <input id="input" class="truncate" placeholder="Searching doesn't work..." type="text" />
+        <form id="fv">
+          <input id="input" placeholder="Searching doesn't work..." />
         </form>
       </div>
     </div>
@@ -76,9 +96,9 @@
 
   <div id="admin-auth-popup">
     <h2>Admin Login</h2>
-    <input type="text" id="adm-user" placeholder="Username">
-    <input type="password" id="adm-pass" placeholder="Password">
-    <button onclick="checkAdmin()" style="background:#ff0000; border:none; padding:10px 20px; cursor:pointer; font-weight:bold;">Login</button>
+    <input id="adm-user" placeholder="Username">
+    <input id="adm-pass" placeholder="Password">
+    <button onclick="checkAdmin()">Login</button>
   </div>
 
   <div id="crown-btn" onclick="toggleAdminMenu()">Admin</div>
@@ -86,152 +106,110 @@
   <div id="admin-menu">
     <div class="admin-opt" id="console-btn" onclick="toggleConsole()">Console</div>
     <div class="admin-opt" onclick="toggleEdit()">Edit</div>
-    <div class="admin-opt" onclick="logoutAdmin()" style="color:red; font-weight:bold;">Logout</div>
+
+    <div class="admin-opt" onclick="openTest()">Test</div>
+    <div class="admin-opt" onclick="openList()">List</div>
+    <div class="admin-opt" onclick="openGitHub()">GitHub</div>
+    <div class="admin-opt" onclick="openOnline()">Online</div>
+    <div class="admin-opt" onclick="openScan()">Scan</div>
+    <div class="admin-opt" onclick="openBookmark()">BookMarklets</div>
+
+    <div class="admin-opt" onclick="logoutAdmin()" style="color:red;">Logout</div>
   </div>
 
-  <div id="edit-popup">
-    <h3>Admin Customization</h3>
-    <input type="text" id="name-input" placeholder="Custom Site Name">
-    <select id="font-select">
-      <option value="">Default Font</option>
-      <option value="f-easter">Easter Theme</option>
-      <option value="f-halloween">Halloween Theme</option>
-      <option value="f-birthday">Birthday Theme</option>
-      <option value="f-christmas">Christmas Theme</option>
+  <!-- TEST -->
+  <div class="popup" id="test-popup">
+    <div class="close-btn" onclick="closePopup('test-popup')">X</div>
+    <h2>Testing Zone</h2>
+    <p>Your changes will not be saved.</p>
+
+    <select>
+      <option>Classic</option>
+      <option>Medium</option>
+      <option>Advanced</option>
     </select>
-    <input type="text" id="yt-url" placeholder="YouTube URL">
-    <input type="text" id="splash-input" placeholder="Splash Message">
-    <button onclick="saveAdminEdits()" style="background:#ff0000; color:black; border:none; padding:10px; cursor:pointer; width:100%; font-weight:bold;">Save Changes</button>
-    <button onclick="toggleEdit()" style="background:#333; color:white; border:none; padding:10px; margin-top:5px; cursor:pointer; width:100%;">Close</button>
+
+    <textarea id="editor"></textarea>
+    <button onclick="runPreview()">Commit Changes</button>
+    <iframe id="preview"></iframe>
   </div>
 
-  <div id="admin-console" style="display:none; position:fixed; bottom:20px; left:20px; background:#000; border:2px solid red; padding:10px; z-index:10001;">
-    <input type="text" id="console-input" placeholder="Command..." onkeydown="handleCmd(event)" style="background:#000; color:#0f0; border:none; outline:none; width:250px; font-family:monospace;">
+  <!-- ONLINE -->
+  <div class="popup" id="online-popup">
+    <div class="close-btn" onclick="closePopup('online-popup')">X</div>
+    <h2 id="online-count"></h2>
   </div>
 
-  <script src="assets/js/index-3.js"></script>
-  <script src="/assets/js/h1.js"></script>
-  <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
-  <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
-  <script src="/assets/js/m1.js"></script>
+  <!-- SCAN -->
+  <div class="popup" id="scan-popup">
+    <div class="close-btn" onclick="closePopup('scan-popup')">X</div>
+    <h2 id="scan-text">Scanning...</h2>
+    <div id="scan-bar"><div id="scan-fill"></div></div>
+  </div>
 
-  <script>
-    let clickCount = 0;
-    const titleEl = document.getElementById('main-title');
+  <!-- BOOKMARK -->
+  <div class="popup" id="bookmark-popup">
+    <div class="close-btn" onclick="closePopup('bookmark-popup')">X</div>
+    <h2>This part is being updated!</h2>
+  </div>
 
-    titleEl.addEventListener('click', () => {
-      clickCount++;
-      if (clickCount === 3) {
-        document.getElementById('admin-auth-popup').style.display = 'block';
-        clickCount = 0;
-      }
-      setTimeout(() => { clickCount = 0; }, 800);
-    });
+<script>
+let clickCount = 0;
+const titleEl = document.getElementById('main-title');
 
-    function checkAdmin() {
-      const user = document.getElementById('adm-user').value;
-      const pass = document.getElementById('adm-pass').value;
+titleEl.onclick = () => {
+  clickCount++;
+  if(clickCount===3){
+    document.getElementById('admin-auth-popup').style.display='block';
+    clickCount=0;
+  }
+  setTimeout(()=>clickCount=0,800);
+};
 
-      if (user === "Sharvesh" && pass === "00010698") {
-        localStorage.setItem('isAdmin', 'full');
-        location.reload();
-      } else if (user === "Rayhaan" && pass === "222") {
-        localStorage.setItem('isAdmin', 'limited');
-        location.reload();
-      }
-    }
+function checkAdmin(){
+  const u=adm-user.value,p=adm-pass.value;
+  if(u==="Sharvesh"&&p==="00010698"){localStorage.setItem('isAdmin','full');location.reload();}
+  else if(u==="Rayhaan"&&p==="222"){localStorage.setItem('isAdmin','limited');location.reload();}
+}
 
-    function logoutAdmin() {
-      localStorage.removeItem('isAdmin');
-      location.reload();
-    }
+function toggleAdminMenu(){
+  let m=admin-menu;
+  m.style.display=m.style.display==='block'?'none':'block';
+  if(localStorage.getItem('isAdmin')==='limited') console-btn.style.display='none';
+}
 
-    function toggleAdminMenu() {
-      const m = document.getElementById('admin-menu');
-      const role = localStorage.getItem('isAdmin');
+function logoutAdmin(){localStorage.removeItem('isAdmin');location.reload();}
 
-      m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+function toggleEdit(){edit-popup.style.display=edit-popup.style.display==='block'?'none':'block';}
+function toggleConsole(){if(localStorage.getItem('isAdmin')==='limited')return;admin-console.style.display=admin-console.style.display==='block'?'none':'block';}
 
-      const consoleBtn = document.getElementById('console-btn');
-      if (role === 'limited') {
-        consoleBtn.style.display = 'none';
-      } else {
-        consoleBtn.style.display = 'block';
-      }
-    }
+/* NEW FEATURES */
+function openTest(){
+  test-popup.style.display='block';
+  editor.value=document.documentElement.outerHTML;
+}
+function runPreview(){preview.srcdoc=editor.value;}
 
-    function toggleEdit() {
-      const e = document.getElementById('edit-popup');
-      e.style.display = (e.style.display === 'block') ? 'none' : 'block';
-      document.getElementById('admin-menu').style.display = 'none';
-    }
+function openList(){window.open("https://docs.google.com/document/d/1stBkKWEtbASCIur9aRl1UJ6qpsU0ykGJzJnK_EGifEY/edit?tab=t.0#heading=h.nj23sjpj5u97");}
+function openGitHub(){window.open("https://github.com/SpyderSammy-jpg/SpyderSammy1");}
 
-    function toggleConsole() {
-      const role = localStorage.getItem('isAdmin');
-      if (role === 'limited') return;
+function openOnline(){
+  online-count.innerText="People Online: "+(Math.floor(Math.random()*21)+3);
+  online-popup.style.display='block';
+}
 
-      const c = document.getElementById('admin-console');
-      c.style.display = (c.style.display === 'block') ? 'none' : 'block';
-      document.getElementById('admin-menu').style.display = 'none';
-    }
+function openScan(){
+  scan-popup.style.display='block';
+  setTimeout(()=>{
+    scan-text.innerText="Scan complete! This proxy website is safe!";
+  },20000);
+}
 
-    function saveAdminEdits() {
-      const n = document.getElementById('name-input').value;
-      const f = document.getElementById('font-select').value;
-      const s = document.getElementById('splash-input').value;
-      let m = document.getElementById('yt-url').value;
+function openBookmark(){bookmark-popup.style.display='block';}
 
-      if (n) localStorage.setItem('cName', n);
-      localStorage.setItem('cFont', f);
-      if (s) localStorage.setItem('cSplash', s);
-      if (m.includes('youtube.com')) {
-        m = m.replace('youtube.com', 'yout-ube.com');
-        localStorage.setItem('cMusic', m);
-      }
-      applyAdminSettings();
-      toggleEdit();
-    }
+function closePopup(id){document.getElementById(id).style.display='none';}
 
-    function applyAdminSettings() {
-      const name = localStorage.getItem('cName');
-      const font = localStorage.getItem('cFont');
-      const splash = localStorage.getItem('cSplash');
-      const music = localStorage.getItem('cMusic');
-      const role = localStorage.getItem('isAdmin');
-
-      if (name) titleEl.innerText = name;
-      if (font) titleEl.className = "title " + font;
-      if (splash) document.getElementById('splash').innerText = splash;
-
-      if (role) document.getElementById('crown-btn').style.display = 'block';
-
-      if (music && !window.tabOpened) {
-        document.body.addEventListener('click', () => {
-          if (!window.tabOpened) {
-            window.open(music, '_blank');
-            window.tabOpened = true;
-          }
-        }, {once: true});
-      }
-    }
-
-    function handleCmd(e) {
-      if (e.key === 'Enter') {
-        const val = e.target.value;
-        if (val === '/refresh') location.reload();
-        if (val === '/home') window.location.href = '/';
-        if (val === '/close') window.close();
-        e.target.value = '';
-      }
-    }
-
-    window.onload = applyAdminSettings;
-
-    setInterval(() => {
-      const offset = '20px';
-      document.getElementById('crown-btn').style.left = offset;
-      document.getElementById('admin-menu').style.left = offset;
-    }, 400);
-  </script>
+window.onload=()=>{if(localStorage.getItem('isAdmin'))crown-btn.style.display='block';};
+</script>
 </body>
 </html>
