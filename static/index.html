@@ -658,5 +658,114 @@ function openTest(){
   }
 }
 </script>
+<!-- ===== FIXED TEST SYSTEM ===== -->
+<style>
+/* CLEAN POPUP (NO FULLSCREEN BUGS) */
+#test-popup {
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:85%;
+  height:85%;
+  background:#000;
+  border:2px solid red;
+  z-index:10050;
+  color:white;
+  padding:0;
+}
+
+/* TOOLBAR */
+#test-toolbar {
+  background:#111;
+  border-bottom:2px solid red;
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* EDITOR */
+#editor {
+  width:100%;
+  height:calc(100% - 60px);
+  background:#000;
+  color:#0f0;
+  font-family:monospace;
+  padding:10px;
+  border:none;
+  outline:none;
+  resize:none;
+}
+</style>
+
+<script>
+/* OPEN TEST */
+function openTest(){
+  const popup = document.getElementById('test-popup');
+  popup.style.display='block';
+
+  document.getElementById('editor').value =
+    document.documentElement.outerHTML;
+}
+
+/* COMMIT → OPEN PREVIEW TAB */
+function runPreview(){
+  const code = document.getElementById('editor').value;
+
+  const win = window.open();
+  win.document.write(`
+    <html>
+    <head><title>Preview</title></head>
+    <body style="margin:0;background:white;">
+
+      <div style="
+        position:fixed;
+        bottom:10px;
+        right:10px;
+        z-index:9999;
+      ">
+        <button onclick="saveToGitHub()"
+        style="padding:10px;background:red;color:black;font-weight:bold;">
+          Save
+        </button>
+      </div>
+
+      <script>
+        function saveToGitHub(){
+          alert("To actually deploy, you need GitHub API (token).");
+        }
+      <\/script>
+
+      ${code}
+    </body>
+    </html>
+  `);
+}
+</script>
+
+<!-- ===== UPDATED TEST POPUP ===== -->
+<div id="test-popup">
+  <div id="test-toolbar">
+    <div>
+      <strong>Testing Zone</strong><br>
+      <small>Your changes will not be saved</small>
+    </div>
+
+    <div>
+      <select>
+        <option>Classic</option>
+        <option>Medium</option>
+        <option>Advanced</option>
+      </select>
+
+      <button onclick="runPreview()">Commit Changes</button>
+      <button onclick="closePopup('test-popup')">X</button>
+    </div>
+  </div>
+
+  <textarea id="editor"></textarea>
+</div>
 </body>
 </html>
