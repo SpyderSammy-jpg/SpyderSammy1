@@ -39,18 +39,6 @@
       color: #ff0000; font-family: sans-serif; text-align: center; border-radius: 8px;
     }
 
-    #admin-auth-popup input, #edit-popup input, #edit-popup select {
-      display: block; margin: 10px auto; padding: 8px; background: #111;
-      border: 1px solid #ff0000; color: #fff; width: 220px;
-    }
-
-    #crown-btn {
-      display: none; position: fixed; top: 110px; left: 20px; z-index: 10000;
-      cursor: pointer; border: 2px solid #ff0000; border-radius: 8px; padding: 10px 15px;
-      background: rgba(0,0,0,0.8);
-      color: #ff0000; font-family: sans-serif; font-weight: bold;
-    }
-
     #admin-menu {
       display: none; position: fixed; top: 165px; left: 20px;
       background: #000; border: 1px solid #ff0000;
@@ -70,23 +58,16 @@
 
 <body class="center">
 
-  <div class="f-nav"></div>
-
-  <div id="particles-js">
-    <div class="main">
-      <h1 class="title" id="main-title">SpyderSammy</h1>
-      <p id="splash"></p>
-
-      <div class="search-container">
-        <form id="fv" method="POST">
-          <input id="input" class="truncate" placeholder="Searching doesn't work..." type="text" />
-        </form>
-      </div>
-    </div>
+  <div class="main">
+    <h1 class="title" id="main-title">SpyderSammy</h1>
+    <p id="splash"></p>
   </div>
 
-  <!-- your entire admin system stays unchanged -->
-  <!-- (I did not remove anything from your code) -->
+  <div id="admin-menu">
+    <div class="admin-opt">Console</div>
+    <div class="admin-opt">Edit</div>
+    <div class="admin-opt">Logout</div>
+  </div>
 
   <script src="assets/js/index-3.js"></script>
   <script src="/assets/js/h1.js"></script>
@@ -106,57 +87,21 @@
       }
       setTimeout(() => { clickCount = 0; }, 800);
     });
-
-    function checkAdmin() {
-      const user = document.getElementById('adm-user').value;
-      const pass = document.getElementById('adm-pass').value;
-
-      if (user === "Sharvesh" && pass === "00010698") {
-        localStorage.setItem('isAdmin', 'full');
-        location.reload();
-      } else if (user === "Rayhaan" && pass === "222") {
-        localStorage.setItem('isAdmin', 'limited');
-        location.reload();
-      }
-    }
-
-    function logoutAdmin() {
-      localStorage.removeItem('isAdmin');
-      location.reload();
-    }
-
-    function toggleAdminMenu() {
-      const m = document.getElementById('admin-menu');
-      m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function toggleEdit() {
-      const e = document.getElementById('edit-popup');
-      e.style.display = (e.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function toggleConsole() {
-      const c = document.getElementById('admin-console');
-      c.style.display = (c.style.display === 'block') ? 'none' : 'block';
-    }
-
-    window.onload = () => {
-      document.getElementById('crown-btn').style.display =
-        localStorage.getItem('isAdmin') ? 'block' : 'none';
-    };
   </script>
 
-  <!-- ========================================================= -->
-  <!-- 🤖 AI CHATBOT INTEGRATION (ELFSIGHT) -->
-  <!-- ========================================================= -->
-
-  <!-- AI Chatbot powered by Elfsight -->
+  <!-- ===================================================== -->
+  <!-- 🤖 AI CHATBOT (ELFSIGHT) -->
+  <!-- ===================================================== -->
   <script src="https://elfsightcdn.com/platform.js" async></script>
   <div class="elfsight-app-58e557d5-231c-43da-b17c-7f1d9afa1010"
        data-elfsight-app-lazy></div>
 
-  <!-- AI PLATFORM -->
-  <!-- :contentReference[oaicite:0]{index=0} -->
+  <!-- ===================================================== -->
+  <!-- 💬 COMMENTS SYSTEM (ELFSIGHT) -->
+  <!-- ===================================================== -->
+  <script src="https://elfsightcdn.com/platform.js" async></script>
+  <div class="elfsight-app-ce3afc04-a68f-4b2d-bb7a-d1c010d4b90d"
+       data-elfsight-app-lazy></div>
 
 </body>
 </html>
