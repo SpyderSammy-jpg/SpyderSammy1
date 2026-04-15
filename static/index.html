@@ -2,31 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting...</title>
+    <title>SpyderSammy Proxy</title>
 
-    <script type="text/javascript">
-        // Notify the user
-        alert("Homepage doesn't work. Page is being updated.");
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
 
-        // Redirect to the updated page
-        window.location.href = "https://spyder-network.vercel.app/d";
+        /* Message box styling */
+        #update-message {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 9999;
+            max-width: 90%;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* Iframe fills the page */
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+        }
+
+        /* Ensure AI widget stays above iframe */
+        .elfsight-app {
+            position: fixed !important;
+            z-index: 99999 !important;
+        }
+    </style>
+
+    <script>
+        // Show alert on entry
+        window.onload = function() {
+            alert("The homepage is being updated. Redirecting you to the tabs page...");
+        };
     </script>
-
-    <!-- Fallback redirect if JavaScript is disabled -->
-    <meta http-equiv="refresh" content="3; url=https://spyder-network.vercel.app/d">
 </head>
 
 <body>
-    <p>
+
+    <!-- On‑page message -->
+    <div id="update-message">
         The homepage is being updated. Redirecting you to the tabs page...  
         Your SpyderSammy Proxy is going through a massive upgrade with audio players, 
         faster unblocking service, group chats, anime players, movie players, translators, 
         and many more! These will be released by April 28th!  
         — SpyderSammy Team
-    </p>
+    </div>
 
-    <!-- AI Chatbot powered by Elfsight -->
+    <!-- Iframe loading the new page -->
+    <iframe src="https://spyder-network.vercel.app/d"></iframe>
+
+    <!-- AI Chatbot (always on top) -->
     <script src="https://elfsightcdn.com/platform.js" async></script>
     <div class="elfsight-app-58e557d5-231c-43da-b17c-7f1d9afa1010" data-elfsight-app-lazy></div>
+
 </body>
 </html>
